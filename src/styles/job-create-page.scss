@@ -1,0 +1,71 @@
+.register-job-page {
+  background-color: #f3f4f6;
+  min-height: 100vh;
+
+  header {
+    background-color: #f87171;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+
+    .back-button {
+      color: white;
+      margin-right: 1rem;
+    }
+
+    h1 {
+      color: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+  }
+
+  main {
+    padding: 2rem;
+
+    form {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+      .form-group {
+        margin-bottom: 1.5rem;
+
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 600;
+        }
+
+        input, textarea, select {
+          width: 100%;
+          padding: 0.5rem;
+          border: 1px solid #d1d5db;
+          border-radius: 0.25rem;
+          font-size: 1rem;
+        }
+
+        textarea {
+          min-height: 100px;
+        }
+      }
+
+      .submit-button {
+        background-color: #f87171;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+
+        &:hover {
+          background-color: #ef4444;
+        }
+      }
+    }
+  }
+}
