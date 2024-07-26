@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import '../styles/job-create-page.scss';
+import React, { useState } from "react";
+import { ChevronLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import "../styles/job-create-page.scss";
 
 const RegisterJob = () => {
-  const [jobTitle, setJobTitle] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
-  const [jobPrice, setJobPrice] = useState('');
-  const [jobCategory, setJobCategory] = useState('');
-  const [jobLocation, setJobLocation] = useState('');
+  const navigate = useNavigate();
+  const [jobTitle, setJobTitle] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const [jobPrice, setJobPrice] = useState("");
+  const [jobCategory, setJobCategory] = useState("");
+  const [jobLocation, setJobLocation] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // 여기에 잡일 등록 로직 구현
-    console.log('잡일 등록:', { jobTitle, jobDescription, jobPrice, jobCategory, jobLocation });
+    console.log("잡일 등록:", { jobTitle, jobDescription, jobPrice, jobCategory, jobLocation });
+  };
+
+  const handleMainClick = () => {
+    navigate("/main");
   };
 
   return (
@@ -22,7 +27,9 @@ const RegisterJob = () => {
         <Link to="/main" className="back-button">
           <ChevronLeft />
         </Link>
-        <h1>잡일 등록</h1>
+        <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
+          JOB일
+        </h1>
       </header>
       <main>
         <form onSubmit={handleSubmit}>
@@ -80,7 +87,9 @@ const RegisterJob = () => {
               required
             />
           </div>
-          <button type="submit" className="submit-button">등록하기</button>
+          <button type="submit" className="submit-button">
+            등록하기
+          </button>
         </form>
       </main>
     </div>

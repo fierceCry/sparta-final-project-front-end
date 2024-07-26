@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Bell, Send, User, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import '../styles/job-detail-page.scss';
+import React, { useState } from "react";
+import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import "../styles/job-detail-page.scss";
 
 const JobDetailPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -22,7 +22,11 @@ const JobDetailPage = () => {
   };
 
   const handleReport = () => {
-    navigate('/report');
+    navigate("/report");
+  };
+
+  const handleMainClick = () => {
+    navigate("/main");
   };
 
   return (
@@ -32,7 +36,9 @@ const JobDetailPage = () => {
           <Link to="/main" className="back-button">
             <ChevronLeft />
           </Link>
-          <h1>JOB일</h1>
+          <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
+            JOB일
+          </h1>
         </div>
         <div className="header-right">
           <Bell />
@@ -47,7 +53,11 @@ const JobDetailPage = () => {
               <button className="image-nav-button prev" onClick={prevImage}>
                 <ChevronLeft />
               </button>
-              <img src={images[currentImageIndex]} alt={`Job location ${currentImageIndex + 1}`} className="job-image" />
+              <img
+                src={images[currentImageIndex]}
+                alt={`Job location ${currentImageIndex + 1}`}
+                className="job-image"
+              />
               <button className="image-nav-button next" onClick={nextImage}>
                 <ChevronRight />
               </button>
@@ -76,13 +86,19 @@ const JobDetailPage = () => {
                 </div>
               </div>
               <div className="map-container">
-                <img src="https://example.com/path-to-map-image.jpg" alt="Job location map" className="map-image" />
+                <img
+                  src="https://example.com/path-to-map-image.jpg"
+                  alt="Job location map"
+                  className="map-image"
+                />
               </div>
             </div>
           </div>
           <div className="button-group">
             <button className="apply-button">지원하기</button>
-            <button className="save-button" onClick={handleReport}>신고하기</button>
+            <button className="save-button" onClick={handleReport}>
+              신고하기
+            </button>
           </div>
         </div>
       </main>

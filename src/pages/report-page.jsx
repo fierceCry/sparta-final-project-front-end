@@ -1,25 +1,28 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Bell, Send, User } from 'lucide-react';
-import '../styles/report-page.scss';
-import { ReportReason } from '../components/report-enum';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronLeft, Bell, Send, User } from "lucide-react";
+import "../styles/report-page.scss";
+import { ReportReason } from "../components/report-enum";
 
 const ReportPage = () => {
-  const [email, setEmail] = useState('');
-  const [reason, setReason] = useState('');
-  const [details, setDetails] = useState('');
+  const [email, setEmail] = useState("");
+  const [reason, setReason] = useState("");
+  const [details, setDetails] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('신고 제출:', { email, reason, details });
-    navigate('/main');
+    console.log("신고 제출:", { email, reason, details });
+    navigate("/main");
   };
 
   const handleUserIconClick = () => {
     navigate("/user");
   };
 
+  const handleMainClick = () => {
+    navigate("/main");
+  };
   return (
     <div className="report-page">
       <header className="report-page__header">
@@ -27,7 +30,9 @@ const ReportPage = () => {
           <Link to="/main" className="report-page__back-button">
             <ChevronLeft />
           </Link>
-          <h1>신고 작성</h1>
+          <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
+            JOB일
+          </h1>
         </div>
         <div className="report-page__header-right">
           <Bell />
@@ -50,12 +55,7 @@ const ReportPage = () => {
           </div>
           <div className="report-page__form-group">
             <label htmlFor="reason">신고 사유</label>
-            <select
-              id="reason"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              required
-            >
+            <select id="reason" value={reason} onChange={(e) => setReason(e.target.value)} required>
               <option value="">신고 사유를 선택하세요</option>
               {Object.entries(ReportReason).map(([key, value]) => (
                 <option key={key} value={value}>
@@ -74,7 +74,9 @@ const ReportPage = () => {
               required
             ></textarea>
           </div>
-          <button type="submit" className="report-page__submit-button">신고하기</button>
+          <button type="submit" className="report-page__submit-button">
+            신고하기
+          </button>
         </form>
       </main>
     </div>

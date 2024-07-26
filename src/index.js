@@ -9,9 +9,10 @@ import MainPage from "./pages/main-page";
 import RegisterJob from "./pages/job-create-page";
 import UserInfoPage from "./pages/users-page";
 import JobDetailPage from "./pages/job-detail-page";
-import NoticePage from './pages/notice-detail-page';
-import ReportPage from './pages/report-page';
-import ChatListPage from './pages/chatlist-page';
+import NoticePage from "./pages/notice-detail-page";
+import ReportPage from "./pages/report-page";
+import ChatListPage from "./pages/chatlist-page";
+import Chat from "./pages/chat-page";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -27,6 +28,7 @@ root.render(
       <Route path="/notice/:id" element={<NoticePage />} />
       <Route path="/report" element={<ReportPage />} />
       <Route path="/chatlist" element={<ChatListPage />} />
+      <Route path="/chat" element={<Chat />} />
     </Routes>
   </BrowserRouter>,
 );

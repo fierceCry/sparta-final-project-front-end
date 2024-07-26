@@ -28,7 +28,7 @@ const ChatMessage = ({ sender, message }) => {
         </button>
         {isDropdownOpen && (
           <div className="dropdown-menu">
-            <button>나가기</button>
+            <button onClick={() => setIsDropdownOpen(false)}>나가기</button>
             <button onClick={handleReportClick}>신고하기</button>
             <button>블랙리스트</button>
           </div>
@@ -39,6 +39,11 @@ const ChatMessage = ({ sender, message }) => {
 };
 
 const ChatListPage = () => {
+  const navigate = useNavigate();
+  const handleMainClick = () => {
+    navigate("/main");
+  };
+
   return (
     <div className="chat-list-page">
       <div className="main-content">
@@ -47,7 +52,9 @@ const ChatListPage = () => {
             <Link to="/main" className="back-button">
               <ChevronLeft />
             </Link>
-            <h1>JOB일</h1>
+            <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
+              JOB일
+            </h1>
           </div>
           <div className="icons">
             <Bell />
