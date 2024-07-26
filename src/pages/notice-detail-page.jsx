@@ -2,7 +2,7 @@ import React from "react";
 // import { useParams, Link, useNavigate } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
-import '../styles/notice-detail-page.scss';
+import "../styles/notice-detail-page.scss";
 
 const NoticePage = () => {
   // const { id } = useParams();
@@ -21,6 +21,10 @@ const NoticePage = () => {
     return <div>공지사항을 찾을 수 없습니다.</div>;
   }
 
+  const handleMainClick = () => {
+    navigate("/main");
+  };
+
   return (
     <div className="notice-detail-page">
       <header>
@@ -28,7 +32,9 @@ const NoticePage = () => {
           <Link to="/main" className="back-button">
             <ChevronLeft />
           </Link>
-          <h1>공지사항</h1>
+          <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
+            JOB일
+          </h1>{" "}
         </div>
         <div className="header-icons">
           <Bell onClick={() => navigate("/notifications")} />

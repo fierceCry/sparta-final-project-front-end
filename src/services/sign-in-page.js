@@ -9,5 +9,5 @@ export const signin = {
 
   handleGoogleLogin: async () => {
     window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
-  }
+  },
 };

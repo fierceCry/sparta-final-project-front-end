@@ -69,14 +69,20 @@ const MainPage = () => {
     navigate("/chatlist");
   };
 
+  const handleMainClick = () => {
+    navigate("/main");
+  };
+
   return (
     <div className="main-page">
       <header>
-        <h1>JOB일</h1>
+        <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
+          JOB일
+        </h1>{" "}
         <div className="header-icons">
           <input type="text" placeholder="JOB일 검색" className="search-input" />
           <Bell />
-          <Send onClick={handleChatListClick} style={{cursor: 'pointer'}} />
+          <Send onClick={handleChatListClick} style={{ cursor: "pointer" }} />
           <User onClick={handleUserIconClick} style={{ cursor: "pointer" }} />
         </div>
       </header>
