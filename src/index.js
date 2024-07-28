@@ -13,6 +13,7 @@ import NoticePage from "./pages/notice-detail-page";
 import ReportPage from "./pages/report-page";
 import ChatListPage from "./pages/chatlist-page";
 import Chat from "./pages/chat-page";
+import Notifications from "./pages/notifications-page";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -28,7 +29,8 @@ root.render(
       <Route path="/notice/:id" element={<NoticePage />} />
       <Route path="/report" element={<ReportPage />} />
       <Route path="/chatlist" element={<ChatListPage />} />
-      <Route path="/chat" element={<Chat />} />
+      <Route path="/chat/:id" element={<Chat />} />
+      <Route path="/notifications" element={<Notifications />} />
     </Routes>
   </BrowserRouter>,
 );
