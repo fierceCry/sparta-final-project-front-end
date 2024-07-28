@@ -1,15 +1,11 @@
 import React, { useState } from "react";
-import { Bell, Send, User, MoreVertical, ChevronLeft } from "lucide-react";
+import { Bell, Send, User, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
 import "../styles/chat-list-page.scss";
 import { useNavigate, Link } from "react-router-dom";
+import { chatList } from '../mock-data/chat-list';
 
-const ChatMessage = ({ sender, message }) => {
-  const navigate = useNavigate();
+const ChatMessage = ({ sender, message, onReport, onClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const handleReportClick = () => {
-    navigate("/report");
-  };
 
   const toggleDropdown = (e) => {
     e.stopPropagation();
@@ -17,7 +13,7 @@ const ChatMessage = ({ sender, message }) => {
   };
 
   return (
-    <div className="chat-message">
+    <div className="chat-message" onClick={onClick}>
       <div className="chat-content">
         <h3>{sender}</h3>
         <p>{message}</p>
@@ -29,7 +25,7 @@ const ChatMessage = ({ sender, message }) => {
         {isDropdownOpen && (
           <div className="dropdown-menu">
             <button onClick={() => setIsDropdownOpen(false)}>나가기</button>
-            <button onClick={handleReportClick}>신고하기</button>
+            <button onClick={onReport}>신고하기</button>
             <button>블랙리스트</button>
           </div>
         )}
@@ -40,9 +36,28 @@ const ChatMessage = ({ sender, message }) => {
 
 const ChatListPage = () => {
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const messagesPerPage = 5;
+
   const handleMainClick = () => {
     navigate("/main");
   };
+
+  const handleReportClick = (id) => {
+    console.log(`신고하기: ${id}`);
+    navigate("/report");
+  };
+
+  const handleChatClick = (id) => {
+    navigate(`/chat/${id}`);
+  };
+
+  const indexOfLastMessage = currentPage * messagesPerPage;
+  const indexOfFirstMessage = indexOfLastMessage - messagesPerPage;
+  const currentMessages = chatList.slice(indexOfFirstMessage, indexOfLastMessage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const totalPages = Math.ceil(chatList.length / messagesPerPage);
 
   return (
     <div className="chat-list-page">
@@ -63,11 +78,33 @@ const ChatListPage = () => {
           </div>
         </header>
         <main>
-          <ChatMessage sender="홍길동" message="어우 힘이 장사시네요." />
-          <ChatMessage sender="박길동" message="감사합니다!! 덕분에 침 올렸어요." />
-          <ChatMessage sender="홍길동" message="감사합니다!! 덕분에 잘 할 거예요." />
-          <ChatMessage sender="최길동" message="감사합니다!! 덕분에 잘 될 거예요." />
+          {currentMessages.map(({ id, sender, message }) => (
+            <ChatMessage
+              key={id}
+              sender={sender}
+              message={message}
+              onReport={() => handleReportClick(id)}
+              onClick={() => handleChatClick(id)}
+            />
+          ))}
         </main>
+        <footer className="pagination">
+          <button 
+            onClick={() => paginate(currentPage - 1)} 
+            disabled={currentPage === 1}
+            className="arrow-button"
+          >
+            <ChevronLeft />
+          </button>
+          <span>{currentPage} / {totalPages}</span>
+          <button 
+            onClick={() => paginate(currentPage + 1)} 
+            disabled={currentPage === totalPages}
+            className="arrow-button"
+          >
+            <ChevronRight />
+          </button>
+        </footer>
       </div>
     </div>
   );

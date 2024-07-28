@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Bell, Send, User, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/main-page.scss";
 
