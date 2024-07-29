@@ -12,7 +12,6 @@ export const sendVerificationCode = async (email) => {
     });
     return response.data.message;
   } catch (error) {
-    console.error(error);
     throw new Error("인증 코드 전송에 실패했습니다.");
   }
 };
@@ -27,7 +26,6 @@ export const signupUser = async (userData) => {
 
     return response.data.message;
   } catch (error) {
-    console.error(error);
     if(error.response.data.message === '이메일이 이미 존재합니다.'){
       throw new Error('이미 가입된 이메일입니다.');
     }

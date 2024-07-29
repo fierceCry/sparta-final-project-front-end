@@ -1,5 +1,4 @@
 import React from "react";
-// import { useParams, Link, useNavigate } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
 import "../styles/notice-detail-page.scss";
@@ -8,7 +7,6 @@ const NoticePage = () => {
   // const { id } = useParams();
   const navigate = useNavigate();
 
-  // 하드코딩된 공지사항 데이터
   const notices = {
     id: 1,
     title: "시스템 점검 안내",

@@ -6,13 +6,58 @@ import btnNaver from "../data/btn_naver.svg";
 import btnGoogle from "../data/btn_google.svg";
 import { signin } from "../services/sign-in-page";
 import "../styles/signin-page.scss";
+import axios from 'axios';
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleClickSignUp = () => {
     navigate("/sign-up");
+  };
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 8;
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    if (!validateEmail(email)) {
+      setError("유효한 이메일 주소를 입력하세요.");
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      setError("비밀번호는 최소 8자 이상이어야 합니다.");
+      return;
+    }
+
+    setError("");
+
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/auth/local/sign-in`, {
+        email,
+        password,
+      });
+
+      const { accessToken, refreshToken } = response.data;
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+      navigate("/main");
+    } catch (error) {
+      console.error(error);
+      setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.");
+    }
   };
 
   return (
@@ -20,7 +65,7 @@ const LoginPage = () => {
       <div className="login-page__container">
         <h1 className="login-page__title">JOB일</h1>
         <div className="login-page__form-container">
-          <form className="login-form" action="#" method="POST">
+          <form className="login-form" onSubmit={handleLogin}>
             <div className="login-form__input-group">
               <label htmlFor="email" className="login-form__label">
                 이메일 주소
@@ -35,6 +80,8 @@ const LoginPage = () => {
                   required
                   className="login-form__input"
                   placeholder="예) kream@kream.co.kr"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -53,6 +100,8 @@ const LoginPage = () => {
                   required
                   className="login-form__input"
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
                 <button
                   type="button"
@@ -67,6 +116,8 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
+
+            {error && <p className="login-form__error">{error}</p>}
 
             <div className="login-form__help-buttons">
               <button type="button" className="login-form__help-button">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Bell, Send, User } from "lucide-react";
+import axios from 'axios';
 import "../styles/report-page.scss";
 import { ReportReason } from "../components/report-enum";
 
@@ -10,10 +11,27 @@ const ReportPage = () => {
   const [details, setDetails] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("신고 제출:", { email, reason, details });
-    navigate("/main");
+
+    try {
+      const token = localStorage.getItem('accessToken');
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/reports`, {
+        email,
+        reason,
+        description:details,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      alert("신고가 제출되었습니다.");
+      navigate("/main");
+    } catch (error) {
+      console.error("신고 제출 실패:", error);
+      alert("신고 제출에 실패했습니다. 다시 시도해 주세요.");
+    }
   };
 
   const handleUserIconClick = () => {
@@ -23,6 +41,7 @@ const ReportPage = () => {
   const handleMainClick = () => {
     navigate("/main");
   };
+
   return (
     <div className="report-page">
       <header className="report-page__header">

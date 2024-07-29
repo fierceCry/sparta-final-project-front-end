@@ -7,13 +7,12 @@ import { mockChatData } from '../mock-data/chat';
 
 const Chat = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // URL에서 ID 가져오기
+  const { id } = useParams();
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    // ID에 맞는 메시지 필터링
     const filteredMessages = mockChatData.filter((msg) => msg.chatRoomsId === parseInt(id));
     setChatMessages(filteredMessages);
   }, [id]);
@@ -21,14 +20,14 @@ const Chat = () => {
   const handleSendMessage = () => {
     if (newMessage.trim()) {
       const newChatMessage = {
-        id: chatMessages.length + 1, // 새로운 ID 생성
-        senderId: 2, // 수락자 ID (예시로 2로 설정)
-        receiverId: 1, // 등록자 ID (예시로 1로 설정)
-        chatRoomsId: parseInt(id), // 현재 채팅방 ID
+        id: chatMessages.length + 1,
+        senderId: 2,
+        receiverId: 1,
+        chatRoomsId: parseInt(id),
         content: newMessage.trim(),
-        createdAt: new Date(), // 현재 시간
-        updatedAt: new Date(), // 현재 시간
-        deletedAt: null, // 삭제일
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
       };
       setChatMessages([...chatMessages, newChatMessage]);
       setNewMessage("");
@@ -70,10 +69,10 @@ const Chat = () => {
           {chatMessages.map((chat) => (
             <div
               key={chat.id}
-              className={`chat-message ${chat.senderId === 2 ? "sent" : "received"}`} // 수락자 ID에 따라 스타일 변경
+              className={`chat-message ${chat.senderId === 2 ? "sent" : "received"}`}
             >
               <div className="message-content">
-                <p>{chat.content}</p> {/* content 필드로 변경 */}
+                <p>{chat.content}</p>
               </div>
               <span className="sender-name">{chat.senderId === 2 ? "잡일 수락자" : "잡일 등록자"}</span>
             </div>
