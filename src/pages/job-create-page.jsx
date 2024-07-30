@@ -11,7 +11,7 @@ const RegisterJob = () => {
   const [jobPrice, setJobPrice] = useState("");
   const [jobCategory, setJobCategory] = useState("");
   const [jobAddress, setJobAddress] = useState("");
-  const [jobImage, setJobImage] = useState(null);
+  const [jobImage, setJobImage] = useState(""); // 문자열로 변경
   const [error, setError] = useState(null); 
 
   const handleSubmit = async (e) => {
@@ -23,7 +23,7 @@ const RegisterJob = () => {
       price: Number(jobPrice),
       category: jobCategory, 
       address: jobAddress,
-      photoUrl: jobImage
+      photoUrl: jobImage // URL로 변경된 이미지
     };
     try {
       const token = localStorage.getItem('accessToken');
@@ -112,12 +112,13 @@ const RegisterJob = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="jobImage">이미지 업로드</label>
+            <label htmlFor="jobImage">이미지 URL</label>
             <input
-              type="file"
+              type="text"
               id="jobImage"
-              accept="image/*"
-              onChange={(e) => setJobImage(e.target.files[0])} 
+              value={jobImage}
+              onChange={(e) => setJobImage(e.target.value)} // URL 입력
+              placeholder="이미지 URL을 입력하세요"
             />
           </div>
           <button type="submit" className="submit-button">

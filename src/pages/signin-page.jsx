@@ -44,7 +44,7 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/auth/local/sign-in`, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/auth/sign-in`, {
         email,
         password,
       });

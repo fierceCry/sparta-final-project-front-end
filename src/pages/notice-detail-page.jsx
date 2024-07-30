@@ -1,22 +1,47 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
+import axios from 'axios';
 import "../styles/notice-detail-page.scss";
 
 const NoticePage = () => {
-  // const { id } = useParams();
+  const { id } = useParams(); // URL에서 ID 가져오기
   const navigate = useNavigate();
+  const [notice, setNotice] = useState(null);
+  const [error, setError] = useState(null);
 
-  const notices = {
-    id: 1,
-    title: "시스템 점검 안내",
-    date: "2024-07-26",
-    content:
-      "안녕하세요. JOB일 서비스 이용에 불편을 드려 죄송합니다. 시스템 안정화를 위한 점검이 진행될 예정입니다. 점검 시간 동안 서비스 이용이 제한되오니 양해 부탁드립니다.",
-  };
+  useEffect(() => {
+    const fetchNoticeDetail = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/notices/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log("Notice Response:", response.data);
+        
+        setNotice({
+          id: response.data.data.id,
+          title: response.data.data.title,
+          date: response.data.data.createdAt,
+          content: response.data.data.description,
+          imageUrl: response.data.data.imageUrl,
+        });
+      } catch (err) {
+        setError("공지사항을 가져오는 데 실패했습니다.");
+      }
+    };
 
-  if (!notices) {
-    return <div>공지사항을 찾을 수 없습니다.</div>;
+    fetchNoticeDetail();
+  }, [id]);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!notice) {
+    return <div>로딩 중...</div>;
   }
 
   const handleMainClick = () => {
@@ -32,7 +57,7 @@ const NoticePage = () => {
           </Link>
           <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
             JOB일
-          </h1>{" "}
+          </h1>
         </div>
         <div className="header-icons">
           <Bell onClick={() => navigate("/notifications")} />
@@ -42,9 +67,10 @@ const NoticePage = () => {
       </header>
       <main>
         <article className="notice-card">
-          <h2>{notices.title}</h2>
-          <p className="notice-date">{notices.date}</p>
-          <div className="notice-content">{notices.content}</div>
+          <h2>{notice.title}</h2>
+          <p className="notice-date">{new Date(notice.date).toLocaleDateString()}</p>
+          {notice.imageUrl && <img src={notice.imageUrl} alt={notice.title} className="notice-image" />}
+          <div className="notice-content">{notice.content}</div>
         </article>
       </main>
     </div>

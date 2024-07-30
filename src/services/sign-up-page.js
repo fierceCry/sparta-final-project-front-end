@@ -18,7 +18,7 @@ export const sendVerificationCode = async (email) => {
 
 export const signupUser = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/api/v1/auth/local/sign-up`, userData, {
+    const response = await axios.post(`${API_URL}/api/v1/auth/sign-up`, userData, {
       headers: {
         "Content-Type": "application/json",
       },
