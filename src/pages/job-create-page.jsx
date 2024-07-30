@@ -1,20 +1,43 @@
 import React, { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
 import "../styles/job-create-page.scss";
 
 const RegisterJob = () => {
   const navigate = useNavigate();
   const [jobTitle, setJobTitle] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
+  const [jobContent, setJobContent] = useState(""); 
   const [jobPrice, setJobPrice] = useState("");
   const [jobCategory, setJobCategory] = useState("");
-  const [jobLocation, setJobLocation] = useState("");
+  const [jobAddress, setJobAddress] = useState("");
+  const [jobImage, setJobImage] = useState(""); // 문자열로 변경
+  const [error, setError] = useState(null); 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // 여기에 잡일 등록 로직 구현
-    console.log("잡일 등록:", { jobTitle, jobDescription, jobPrice, jobCategory, jobLocation });
+    
+    const userData = {
+      title: jobTitle,
+      content: jobContent, 
+      price: Number(jobPrice),
+      category: jobCategory, 
+      address: jobAddress,
+      photoUrl: jobImage // URL로 변경된 이미지
+    };
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/jobs`, userData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("잡일 등록 성공:", response.data);
+      navigate("/main");
+    } catch (err) {
+      setError("잡일 등록에 실패했습니다.");
+      console.error(err);
+    }
   };
 
   const handleMainClick = () => {
@@ -32,6 +55,7 @@ const RegisterJob = () => {
         </h1>
       </header>
       <main>
+        {error && <p className="error-message">{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="jobTitle">제목</label>
@@ -44,11 +68,11 @@ const RegisterJob = () => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="jobDescription">설명</label>
+            <label htmlFor="jobContent">내용</label>
             <textarea
-              id="jobDescription"
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
+              id="jobContent"
+              value={jobContent}
+              onChange={(e) => setJobContent(e.target.value)}
               required
             />
           </div>
@@ -78,13 +102,23 @@ const RegisterJob = () => {
             </select>
           </div>
           <div className="form-group">
-            <label htmlFor="jobLocation">위치</label>
+            <label htmlFor="jobAddress">주소</label>
             <input
               type="text"
-              id="jobLocation"
-              value={jobLocation}
-              onChange={(e) => setJobLocation(e.target.value)}
+              id="jobAddress"
+              value={jobAddress}
+              onChange={(e) => setJobAddress(e.target.value)}
               required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="jobImage">이미지 URL</label>
+            <input
+              type="text"
+              id="jobImage"
+              value={jobImage}
+              onChange={(e) => setJobImage(e.target.value)} // URL 입력
+              placeholder="이미지 URL을 입력하세요"
             />
           </div>
           <button type="submit" className="submit-button">

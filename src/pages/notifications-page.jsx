@@ -25,7 +25,6 @@ const AlarmList = () => {
     navigate("/main");
   };
 
-  // 드롭다운 상태 관리
   const [openDropdown, setOpenDropdown] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
 

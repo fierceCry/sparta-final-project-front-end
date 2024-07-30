@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Bell, Send, User, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
 import "../styles/chat-list-page.scss";
 import { useNavigate, Link } from "react-router-dom";
-import { chatList } from '../mock-data/chat-list';
+import axios from 'axios'; // axios 추가
 
 const ChatMessage = ({ sender, message, onReport, onClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -37,7 +37,29 @@ const ChatMessage = ({ sender, message, onReport, onClick }) => {
 const ChatListPage = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
+  const [chatList, setChatList] = useState([]);
+  const [error, setError] = useState(null);
   const messagesPerPage = 5;
+
+  useEffect(() => {
+    const fetchChatList = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/chat-rooms`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log(response)
+          setChatList(response.data.data);
+      } catch (err) {
+        setError("채팅 목록을 가져오는 데 실패했습니다."); 
+        console.error(err);
+      }
+    };
+
+    fetchChatList(); 
+  }, []);
 
   const handleMainClick = () => {
     navigate("/main");
@@ -58,6 +80,10 @@ const ChatListPage = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const totalPages = Math.ceil(chatList.length / messagesPerPage);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <div className="chat-list-page">

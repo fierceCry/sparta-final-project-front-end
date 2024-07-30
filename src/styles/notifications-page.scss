@@ -24,22 +24,22 @@
         display: flex;
         align-items: center;
         text-decoration: none;
-        margin-right: 15px; // 제목과의 간격 조정
+        margin-right: 15px; 
       }
 
       h1 {
         font-size: 1.5rem;
         font-weight: bold;
         color: white;
-        cursor: pointer; // 커서 포인터 설정
-        margin: 0; // 기본 여백 제거
+        cursor: pointer; 
+        margin: 0
       }
 
       .header-icons {
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-left: auto; // 오른쪽으로 밀기
+        margin-left: auto;
 
         .search-input {
           padding: 0.5rem;
@@ -88,7 +88,7 @@
 
         .options-menu {
           position: absolute;
-          background-color: white; /* 배경색을 흰색으로 설정 */
+          background-color: white; 
           border: 1px solid #e5e7eb;
           border-radius: 0.25rem;
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -102,7 +102,7 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: #333; /* 글자색을 어두운 색으로 설정 */
+            color: #333; 
 
             &:hover {
               background-color: #f3f4f6;
