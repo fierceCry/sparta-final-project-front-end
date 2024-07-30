@@ -5,8 +5,6 @@ import { io } from "socket.io-client";
 import "../../styles/chat/chat-page.scss";
 import "../../styles/chat/chat-modal.scss";
 
-const socket = io(process.env.REACT_APP_SOCKET_URL); 
-
 const Chat = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -14,32 +12,57 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
 
-  useEffect(() => {
-    socket.emit("joinRoom", id); 
+  // 액세스 토큰을 로컬 스토리지나 쿠키에서 가져옵니다.
+  const token = localStorage.getItem("accessToken"); // 예: localStorage
 
-    socket.on("message", (message) => {
+  const socket = io('http://localhost:3333', {
+    extraHeaders: {
+      authorization: `Bearer ${token}`, // JWT 토큰
+    },
+  });
+  
+  
+  
+  
+  useEffect(() => {
+    // 채팅방에 조인
+    socket.emit("joinRoom", { userId: id }); 
+
+    // 메시지 수신
+    socket.on("receiveChat", (message) => {
       setChatMessages((prevMessages) => [...prevMessages, message]);
     });
 
+    // 채팅 업데이트 수신
+    socket.on("chatUpdated", (updatedChat) => {
+      setChatMessages((prevMessages) => 
+        prevMessages.map(chat => chat.id === updatedChat.id ? updatedChat : chat)
+      );
+    });
+
+    // 채팅 삭제 수신
+    socket.on("chatDeleted", ({ chatId }) => {
+      setChatMessages((prevMessages) => 
+        prevMessages.filter(chat => chat.id !== chatId)
+      );
+    });
+
     return () => {
-      socket.off("message"); 
+      socket.off("receiveChat");
+      socket.off("chatUpdated");
+      socket.off("chatDeleted");
     };
   }, [id]);
 
   const handleSendMessage = () => {
     if (newMessage.trim()) {
       const newChatMessage = {
-        id: chatMessages.length + 1,
-        senderId: 2,
-        receiverId: 1, 
-        chatRoomsId: parseInt(id), 
+        receiverId: 1, // 수신자 ID
         content: newMessage.trim(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        deletedAt: null,
+        chatRoomId: parseInt(id), 
       };
 
-      socket.emit("sendMessage", newChatMessage);
+      socket.emit("sendChat", newChatMessage);
       setNewMessage("");
     }
   };
