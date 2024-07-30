@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import "../styles/job-create-page.scss";
+import "../../styles/jobs/job-create-page.scss";
+import { refreshAccessToken } from '../../services/auth.serivce'; 
 
 const RegisterJob = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const RegisterJob = () => {
   const [jobPrice, setJobPrice] = useState("");
   const [jobCategory, setJobCategory] = useState("");
   const [jobAddress, setJobAddress] = useState("");
-  const [jobImage, setJobImage] = useState(""); // 문자열로 변경
+  const [jobImage, setJobImage] = useState("");
   const [error, setError] = useState(null); 
 
   const handleSubmit = async (e) => {
@@ -23,8 +24,9 @@ const RegisterJob = () => {
       price: Number(jobPrice),
       category: jobCategory, 
       address: jobAddress,
-      photoUrl: jobImage // URL로 변경된 이미지
+      photoUrl: jobImage 
     };
+    
     try {
       const token = localStorage.getItem('accessToken');
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/jobs`, userData, {
@@ -35,8 +37,15 @@ const RegisterJob = () => {
       console.log("잡일 등록 성공:", response.data);
       navigate("/main");
     } catch (err) {
-      setError("잡일 등록에 실패했습니다.");
-      console.error(err);
+      if (err.response && err.response.status === 401) {
+        const newToken = await refreshAccessToken(navigate);
+        if (newToken) {
+          handleSubmit(e);
+        }
+      } else {
+        setError("잡일 등록에 실패했습니다.");
+        console.error(err);
+      }
     }
   };
 
@@ -117,7 +126,7 @@ const RegisterJob = () => {
               type="text"
               id="jobImage"
               value={jobImage}
-              onChange={(e) => setJobImage(e.target.value)} // URL 입력
+              onChange={(e) => setJobImage(e.target.value)}
               placeholder="이미지 URL을 입력하세요"
             />
           </div>

@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import btnKakao from "../data/btn_kakao.svg";
-import btnNaver from "../data/btn_naver.svg";
-import btnGoogle from "../data/btn_google.svg";
-import { signin } from "../services/sign-in-page";
-import "../styles/signin-page.scss";
-import axios from 'axios';
+import btnKakao from "../../data/btn_kakao.svg";
+import btnNaver from "../../data/btn_naver.svg";
+import btnGoogle from "../../data/btn_google.svg";
+import {
+  signin,
+  validateEmail,
+  validatePassword,
+  handleKakaoLogin,
+  handleNaverLogin,
+  handleGoogleLogin,
+} from "../../services/sign-in-page";
+import "../../styles/auth/signin-page.scss";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -19,18 +25,9 @@ const LoginPage = () => {
     navigate("/sign-up");
   };
 
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  const validatePassword = (password) => {
-    return password.length >= 8;
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
-    
+
     if (!validateEmail(email)) {
       setError("유효한 이메일 주소를 입력하세요.");
       return;
@@ -44,19 +41,11 @@ const LoginPage = () => {
     setError("");
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/auth/sign-in`, {
-        email,
-        password,
-      });
-
-      const { accessToken, refreshToken } = response.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-
+      await signin(email, password);
       navigate("/main");
     } catch (error) {
       console.error(error);
-      setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인하세요.");
+      setError(error.message);
     }
   };
 
@@ -129,13 +118,25 @@ const LoginPage = () => {
             </div>
 
             <div className="login-form__social-login">
-              <button onClick={signin.handleKakaLogin} className="login-form__social-button">
+              <button
+                type="button"
+                onClick={handleKakaoLogin}
+                className="login-form__social-button"
+              >
                 <img src={btnKakao} alt="카카오 로그인 버튼" />
               </button>
-              <button onClick={signin.handleNaverLogin} className="login-form__social-button">
+              <button
+                type="button"
+                onClick={handleNaverLogin}
+                className="login-form__social-button"
+              >
                 <img src={btnNaver} alt="네이버 로그인 버튼" />
               </button>
-              <button onClick={signin.handleGoogleLogin} className="login-form__social-button">
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                className="login-form__social-button"
+              >
                 <img src={btnGoogle} alt="구글 로그인 버튼" />
               </button>
             </div>

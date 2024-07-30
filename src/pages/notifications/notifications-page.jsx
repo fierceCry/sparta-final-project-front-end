@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/notifications-page.scss";
+import "../../styles/notifications/notifications-page.scss";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -12,15 +12,7 @@ const AlarmList = () => {
     { id: 3, message: "알람 3: 점심시간입니다!" },
     { id: 4, message: "알람 4: 운동할 시간입니다." },
   ];
-
-  const handleUserIconClick = () => {
-    navigate("/user");
-  };
-
-  const handleChatListClick = () => {
-    navigate("/chatlist");
-  };
-
+  
   const handleMainClick = () => {
     navigate("/main");
   };
@@ -37,7 +29,6 @@ const AlarmList = () => {
   };
 
   const clearAllAlarms = () => {
-    // 알람 전체 지우기 로직 구현
     console.log("모든 알람이 지워졌습니다.");
   };
 
@@ -53,9 +44,9 @@ const AlarmList = () => {
           </h1>
           <div className="header-icons">
             <input type="text" placeholder="JOB일 검색" className="search-input" />
-            <Bell />
-            <Send onClick={handleChatListClick} style={{ cursor: "pointer" }} />
-            <User onClick={handleUserIconClick} style={{ cursor: "pointer" }} />
+            <Bell onClick={() => navigate("/notifications")} />
+          <Send onClick={() => navigate("/chatlist")} />
+          <User onClick={() => navigate("/user")} />
           </div>
         </header>
         <main>

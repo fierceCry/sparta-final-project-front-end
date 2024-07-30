@@ -1,0 +1,158 @@
+$primary-color: #f87171;
+$secondary-color: #f3f4f6;
+$text-color: #1f2937;
+
+.job-matching {
+  background-color: $secondary-color;
+  min-height: 100vh;
+
+  header {
+    background-color: $primary-color;
+    padding: 1rem;
+    display: flex;
+    align-items: center; /* 수직 정렬 추가 */
+    
+    .report-page__back-button {
+      margin-right: 10px; /* 버튼과 제목 간격 조정 */
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 1rem;
+      margin-left: auto; /* 아이콘들을 오른쪽으로 이동 */
+      
+      .search-input {
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        border: none;
+        outline: none;
+      }
+
+      svg {
+        color: white;
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  main {
+    padding: 2rem;
+
+    .content-container {
+      .filter-section {
+        margin: 1rem 0;
+
+        label {
+          margin-right: 0.5rem;
+        }
+
+        select {
+          padding: 0.5rem;
+          border-radius: 0.25rem;
+          border: 1px solid #ccc;
+        }
+      }
+
+      .job-list {
+        margin-top: 1rem;
+
+        .job-item {
+          background-color: white;
+          padding: 1rem;
+          border-radius: 0.5rem;
+          margin-bottom: 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          transition: background-color 0.2s; // 부드러운 전환 효과 추가
+          cursor: pointer;
+
+          &:hover {
+            background-color: #f0f0f0; // 마우스 오버 시 배경색 변경
+          }
+
+          &.rejected {
+            border-left: 4px solid red;
+          }
+
+          &.accepted {
+            border-left: 4px solid green;
+          }
+
+          .job-actions {
+            display: flex;
+            gap: 0.5rem; // 버튼 간격 조정
+
+            button {
+              background-color: $primary-color;
+              color: white;
+              border: none;
+              border-radius: 0.25rem;
+              padding: 0.5rem 1rem; // 버튼 패딩 조정
+              cursor: pointer;
+              transition: background-color 0.2s, transform 0.2s; // 배경색과 변형 효과 추가
+
+              &:hover {
+                background-color: darken($primary-color, 10%);
+                transform: scale(1.05); // 마우스 오버 시 크기 증가
+              }
+
+              &.reject {
+                background-color: red; // 삭제 버튼 색상
+              }
+
+              &.reject:hover {
+                background-color: darken(red, 10%);
+              }
+
+              &.accept {
+                background-color: green; // 수락 버튼 색상
+              }
+
+              &.accept:hover {
+                background-color: darken(green, 10%);
+              }
+
+              &.chat {
+                background-color: #007bff; // 채팅 버튼 색상
+              }
+
+              &.chat:hover {
+                background-color: darken(#007bff, 10%);
+              }
+            }
+          }
+        }
+      }
+
+      .load-more {
+        text-align: center;
+        margin-top: 1rem;
+
+        button {
+          background-color: $primary-color;
+          color: white;
+          border: none;
+          border-radius: 0.25rem;
+          padding: 0.5rem 1rem;
+          cursor: pointer;
+          transition: background-color 0.2s;
+
+          &:hover {
+            background-color: darken($primary-color, 10%);
+          }
+        }
+      }
+    }
+  }
+}

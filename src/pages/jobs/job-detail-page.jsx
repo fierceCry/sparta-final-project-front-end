@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from 'axios';
-import "../styles/job-detail-page.scss";
+import "../../styles/jobs/job-detail-page.scss";
+import { refreshAccessToken } from '../../services/auth.serivce';
 
 const JobDetailPage = () => {
   const { id } = useParams();
@@ -22,19 +23,39 @@ const JobDetailPage = () => {
         console.log("Job Detail Response:", response.data);
         setJob(response.data.job);
       } catch (err) {
-        setError("잡 정보 가져오는 데 실패했습니다.");
+        if (err.response && err.response.status === 401) {
+          const newToken = await refreshAccessToken(navigate);
+          if (newToken) {
+            fetchJobDetail();
+          }
+        } else {
+          setError("잡 정보 가져오는 데 실패했습니다.");
+        }
       }
     };
 
     fetchJobDetail();
-  }, [id]);
+  }, [id, navigate]);
 
-  const handleReport = () => {
-    navigate("/report");
-  };
-
-  const handleMainClick = () => {
-    navigate("/main");
+  const handleApply = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      alert("지원이 완료되었습니다.");
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        const newToken = await refreshAccessToken(navigate);
+        if (newToken) {
+          handleApply(); 
+        }
+      } else {
+        setError("지원하는 데 실패했습니다.");
+      }
+    }
   };
 
   if (error) {
@@ -44,6 +65,14 @@ const JobDetailPage = () => {
   if (!job) {
     return <p>로딩 중...</p>;
   }
+
+  const handleReport = () => {
+    navigate("/report");
+  };
+
+  const handleMainClick = () => {
+    navigate("/main");
+  };
 
   return (
     <div className="job-detail-page">
@@ -57,9 +86,9 @@ const JobDetailPage = () => {
           </h1>
         </div>
         <div className="header-right">
-          <Bell />
-          <Send />
-          <User />
+        <Bell onClick={() => navigate("/notifications")} />
+          <Send onClick={() => navigate("/chatlist")} />
+          <User onClick={() => navigate("/user")} />
         </div>
       </header>
       <main>
@@ -98,7 +127,9 @@ const JobDetailPage = () => {
             </div>
           </div>
           <div className="button-group">
-            <button className="apply-button">지원하기</button>
+            <button className="apply-button" onClick={handleApply}>
+              지원하기
+            </button>
             <button className="save-button" onClick={handleReport}>
               신고하기
             </button>
