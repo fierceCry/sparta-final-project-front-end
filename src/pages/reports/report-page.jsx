@@ -4,7 +4,7 @@ import { ChevronLeft, Bell, Send, User } from "lucide-react";
 import axios from 'axios';
 import "../../styles/reports/report-page.scss";
 import { ReportReason } from "../../components/report-enum";
-import { refreshAccessToken } from '../../services/auth.serivce'; 
+import { refreshAccessToken } from '../../services/auth.service'; 
 
 const ReportPage = () => {
   const [email, setEmail] = useState("");

@@ -3,7 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import "../../styles/jobs/job-create-page.scss";
-import { refreshAccessToken } from '../../services/auth.serivce'; 
+import { refreshAccessToken } from '../../services/auth.service'; 
 
 const RegisterJob = () => {
   const navigate = useNavigate();

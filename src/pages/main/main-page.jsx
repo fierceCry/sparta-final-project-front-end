@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios';
-import { refreshAccessToken } from '../../services/auth.serivce'; 
+import { fetchJobs, fetchNotices } from '../../services/main'; // 서비스 파일 임포트
 import "../../styles/main/main-page.scss";
 
 const MainPage = () => {
@@ -24,58 +23,23 @@ const MainPage = () => {
       return;
     }
 
-    const fetchJobs = async () => {
+    const loadJobsAndNotices = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/jobs`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log("Jobs Response:", response.data);
-        if (Array.isArray(response.data.jobs)) {
-          setJobs(response.data.jobs);
-        } else {
-          setError("잡일 목록을 가져오는 데 실패했습니다.");
-        }
+        const jobsData = await fetchJobs(token, navigate);
+        setJobs(jobsData);
       } catch (err) {
-        if (err.response && err.response.status === 401) {
-          const newToken = await refreshAccessToken(navigate);
-          if (newToken) {
-            fetchJobs();
-          }
-        } else {
-          setError("잡일 목록을 가져오는 데 실패했습니다.");
-        }
+        setError(err.message);
+      }
+
+      try {
+        const noticesData = await fetchNotices(token, navigate);
+        setNotices(noticesData);
+      } catch (err) {
+        setError(err.message);
       }
     };
 
-    const fetchNotices = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/notices`, {
-          headers: {
-            Authorization: `Bearer ${token}` 
-          }
-        });
-        console.log("Notices Response:", response.data); 
-        if (Array.isArray(response.data.data)) {
-          setNotices(response.data.data); 
-        } else {
-          setError("공지사항 목록을 가져오는 데 실패했습니다.");
-        }
-      } catch (err) {
-        if (err.response && err.response.status === 401) {
-          const newToken = await refreshAccessToken(navigate);
-          if (newToken) {
-            fetchNotices();
-          }
-        } else {
-          setError("공지사항 목록을 가져오는 데 실패했습니다.");
-        }
-      }
-    };
-
-    fetchJobs();
-    fetchNotices();
+    loadJobsAndNotices();
   }, [navigate]);
 
   const indexOfLastJob = jobPage * jobsPerPage;

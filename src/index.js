@@ -16,6 +16,7 @@ import Chat from "./pages/chat/chat-page";
 import Notifications from "./pages/notifications/notifications-page";
 import JobMatching from './pages/jobs/job-matching'
 import JobApplications from './pages/jobs/job-list'
+import RegisterNotice from './pages/notices/notice-create-page';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -35,6 +36,7 @@ root.render(
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/job-matching" element={<JobMatching />} />
       <Route path="/user-applications" element={<JobApplications />} />
+      <Route path="/create-notice" element={<RegisterNotice />} />
     </Routes>
   </BrowserRouter>,
 );

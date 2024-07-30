@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { ChevronLeft, Bell, Send, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { refreshAccessToken } from "../../services/auth.serivce";
+import { refreshAccessToken } from "../../services/auth.service";
 import "../../styles/jobs/job-matching.scss";
 
 const JobApplications = () => {

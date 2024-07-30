@@ -1,84 +1,54 @@
 import React, { useEffect, useState } from "react";
 import { ChevronLeft, Bell, Send, User, Clock } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { refreshAccessToken } from "../../services/auth.serivce";
+import { fetchJobs, acceptJob, rejectJob } from "../../services/job";
 import "../../styles/jobs/job-matching.scss";
 
 const JobMatching = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-      navigate("/sign-in");
-      return;
-    }
-
-    const fetchJobs = async () => {
+    const loadJobs = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/applications`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log(response);
-        setJobs(response.data.Matching || []);
+        const jobList = await fetchJobs(navigate);
+        setJobs(jobList);
       } catch (err) {
-        if (err.response && err.response.status === 401) {
-          const newToken = await refreshAccessToken(navigate);
-          if (newToken) {
-            fetchJobs();
-          }
-        } else {
-          setError("잡일 목록을 가져오는 데 실패했습니다.");
-        }
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchJobs();
+    loadJobs();
   }, [navigate]);
 
   const handleAccept = async (jobId) => {
-    const token = localStorage.getItem("accessToken");
     try {
-      await axios.patch(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/accept/${jobId}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(`Job ${jobId} accepted`);
+      await acceptJob(jobId, navigate);
       setJobs((prevJobs) =>
         prevJobs.map((job) =>
           job.id === jobId ? { ...job, matchedYn: true, rejectedYn: false } : job
         )
       );
     } catch (err) {
-      console.error("수락 처리 중 오류 발생:", err);
-      setError("수락 처리에 실패했습니다.");
+      setError(err.response?.data?.message || "수락 처리에 실패했습니다.");
     }
   };
 
   const handleReject = async (jobId) => {
-    const token = localStorage.getItem("accessToken");
     try {
-      await axios.patch(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/reject/${jobId}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log(`Job ${jobId} rejected`);
+      await rejectJob(jobId, navigate);
       setJobs((prevJobs) =>
         prevJobs.map((job) =>
           job.id === jobId ? { ...job, matchedYn: false, rejectedYn: true } : job
         )
       );
     } catch (err) {
-      console.error("거절 처리 중 오류 발생:", err);
-      setError("거절 처리에 실패했습니다.");
+      setError(err.response?.data?.message || "거절 처리에 실패했습니다.");
     }
   };
 
@@ -116,6 +86,7 @@ const JobMatching = () => {
       <main>
         <div className="content-container">
           <h2>매칭 확인 목록</h2>
+          {loading && <p>로딩 중...</p>}
           {error && <p className="error-message">{error}</p>}
 
           <div className="job-list">
@@ -126,11 +97,9 @@ const JobMatching = () => {
                     {job.date} - {job.title} - {getStatusText(job)}
                   </span>
                   <div className="job-actions">
-                      <Clock style={{ marginRight: "4px" }} />
+                    <Clock style={{ marginRight: "4px" }} />
                     <span>{getStatusText(job)}</span>
-                    <button onClick={() => handleChat(job.id)}>
-                      채팅
-                    </button>
+                    <button onClick={() => handleChat(job.id)}>채팅</button>
                     <button onClick={() => handleAccept(job.id)}>수락</button>
                     <button onClick={() => handleReject(job.id)}>삭제</button>
                   </div>

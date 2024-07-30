@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios';
 import "../../styles/users/users-page.scss";
-import { refreshAccessToken } from '../../services/auth.serivce';
+import { fetchUserInfo, updateUserInfo, logoutUser, quitUser } from '../../services/users';
 
 const UserInfoPage = () => {
   const navigate = useNavigate();
@@ -15,31 +14,20 @@ const UserInfoPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const fetchUserInfo = useCallback(async () => {
+  const loadUserInfo = useCallback(async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/users/me`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUserInfo(response.data);
-      setEmail(response.data.email);
-      setName(response.data.name);
+      const data = await fetchUserInfo(navigate);
+      setUserInfo(data);
+      setEmail(data.email);
+      setName(data.name);
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        const newToken = await refreshAccessToken(navigate);
-        if (newToken) {
-          fetchUserInfo();
-        }
-      } else {
-        setError("사용자 정보를 가져오는 데 실패했습니다.");
-      }
+      setError(err.message);
     }
-  }, [navigate]); 
+  }, [navigate]);
+
   useEffect(() => {
-    fetchUserInfo(); 
-  }, [fetchUserInfo]);
+    loadUserInfo();
+  }, [loadUserInfo]);
 
   const handleMainClick = () => {
     navigate("/main");
@@ -47,72 +35,33 @@ const UserInfoPage = () => {
 
   const handlePersonalInfoChange = async () => {
     if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다."); 
+      alert("비밀번호가 일치하지 않습니다.");
       return;
     }
 
     try {
-      const token = localStorage.getItem('accessToken');
-      await axios.patch(`${process.env.REACT_APP_API_URL}/api/v1/users/me`, {
-        name, 
-        email,
-        newPassword: password,
-        currentPasswordCheck: confirmPassword
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await updateUserInfo({ name, email, newPassword: password, currentPasswordCheck: confirmPassword }, navigate);
       alert("개인정보가 변경되었습니다.");
       setIsModalOpen(false);
-      fetchUserInfo();
+      loadUserInfo();
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        const newToken = await refreshAccessToken(navigate);
-        if (newToken) {
-          handlePersonalInfoChange(); 
-        }
-      } else {
-        console.log(err.response.data.message);
-        if (err.response.data.message === '이메일이 이미 존재합니다.') {
-          alert('이메일이 이미 존재합니다.');
-        }
-        console.error(err);
-      }
+      alert(err);
     }
   };
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem('refreshToken');
-      await axios.patch(`${process.env.REACT_APP_API_URL}/api/v1/auth/sign-out`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      navigate("/sign-in");
+      await logoutUser(navigate);
     } catch (err) {
-      setError("로그아웃에 실패했습니다.");
-      console.error(err);
+      setError(err.message);
     }
   };
 
   const handleQuit = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/users/quit`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      navigate("/login");
+      await quitUser(navigate);
     } catch (err) {
-      setError("로그아웃에 실패했습니다.");
-      console.error(err);
+      setError(err.message);
     }
   };
 
@@ -123,7 +72,6 @@ const UserInfoPage = () => {
   if (!userInfo) {
     return <div>로딩 중...</div>;
   }
-
 
   const handleWithdraw = () => {
     navigate("/user-applications");
@@ -165,7 +113,7 @@ const UserInfoPage = () => {
             <span className="value">{userInfo.email}</span>
           </div>
           <div className="button-group">
-          <button className="outline-button" onClick={(handleWithdraw)}>
+            <button className="outline-button" onClick={handleWithdraw}>
               내가 지원한 목록
             </button>
             <button className="outline-button" onClick={() => setIsModalOpen(true)}>
