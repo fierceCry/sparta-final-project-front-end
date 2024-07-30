@@ -1,48 +1,116 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
-import axios from 'axios';
+import { fetchNoticeDetail, deleteNotice, updateNotice } from '../../services/notice';
 import "../../styles/notices/notice-detail-page.scss";
-import { refreshAccessToken } from '../../services/auth.serivce';
+
+const Modal = ({ isOpen, onClose, noticeData, onSubmit }) => {
+  const [title, setTitle] = useState(noticeData.title);
+  const [description, setDescription] = useState(noticeData.content);
+  const [imageUrl, setImageUrl] = useState(noticeData.imageUrl);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit({ title, description, imageUrl });
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h2>공지사항 수정</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>제목</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>내용</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>이미지 URL</label>
+            <input
+              type="text"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+            />
+          </div>
+          <button type="submit" className="submit-button">완료</button>
+          <button type="button" onClick={onClose} className="close-button">닫기</button>
+        </form>
+      </div>
+    </div>
+  );
+};
 
 const NoticePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [notice, setNotice] = useState(null);
   const [error, setError] = useState(null);
+  const [isModalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchNoticeDetail = async () => {
+    const fetchNotice = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/notices/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log("Notice Response:", response.data);
-        
+        const noticeData = await fetchNoticeDetail(id, navigate);
         setNotice({
-          id: response.data.data.id,
-          title: response.data.data.title,
-          date: response.data.data.createdAt,
-          content: response.data.data.description,
-          imageUrl: response.data.data.imageUrl,
+          id: noticeData.id,
+          title: noticeData.title,
+          date: noticeData.createdAt,
+          content: noticeData.description,
+          imageUrl: noticeData.imageUrl,
         });
       } catch (err) {
-        if (err.response && err.response.status === 401) {
-          const newToken = await refreshAccessToken(navigate);
-          if (newToken) {
-            fetchNoticeDetail();
-          }
-        } else {
-          setError("공지사항을 가져오는 데 실패했습니다.");
-        }
+        setError(err.message);
       }
     };
 
-    fetchNoticeDetail();
+    fetchNotice();
   }, [id, navigate]);
+
+  const handleDelete = async () => {
+    try {
+      await deleteNotice(id);
+      alert("공지사항이 삭제되었습니다.");
+      navigate("/main");
+    } catch (err) {
+      setError("공지사항 삭제에 실패했습니다.");
+      console.error(err);
+    }
+  };
+
+  const handleEdit = () => {
+    setModalOpen(true);
+  };
+
+  const handleUpdateNotice = async (updatedNotice) => {
+    try {
+      await updateNotice(id, updatedNotice);
+      setNotice((prevNotice) => ({
+        ...prevNotice,
+        title: updatedNotice.title,
+        content: updatedNotice.description,
+        imageUrl: updatedNotice.imageUrl,
+      }));
+      alert("공지사항이 수정되었습니다.");
+    } catch (err) {
+      setError("공지사항 수정에 실패했습니다.");
+      console.error(err);
+    }
+  };
 
   if (error) {
     return <div>{error}</div>;
@@ -77,10 +145,20 @@ const NoticePage = () => {
         <article className="notice-card">
           <h2>{notice.title}</h2>
           <p className="notice-date">{new Date(notice.date).toLocaleDateString()}</p>
-          {notice.imageUrl && <img src={notice.imageUrl} alt={notice.title} className="notice-image" />}
           <div className="notice-content">{notice.content}</div>
+          {notice.imageUrl && <img src={notice.imageUrl} alt={notice.title} className="notice-image" />}
+          <div className="action-buttons">
+            <button onClick={handleEdit} className="edit-button">수정</button>
+            <button onClick={handleDelete} className="delete-button">삭제</button>
+          </div>
         </article>
       </main>
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setModalOpen(false)} 
+        noticeData={notice} 
+        onSubmit={handleUpdateNotice} 
+      />
     </div>
   );
 };

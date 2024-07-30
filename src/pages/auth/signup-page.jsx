@@ -6,6 +6,13 @@ import {
   validateEmail,
   validatePassword,
 } from "../../services/sign-up-page";
+import {
+  startTimer,
+  handleVerificationCode,
+  handleModalSubmit,
+  handleSignup,
+  handleCodeChange,
+} from "../../services/sign-up-page"; 
 import "../../styles/auth/signup-page.scss";
 import { useNavigate } from "react-router-dom";
 
@@ -16,54 +23,26 @@ const SignupPage = () => {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [name, setName] = useState("");
-  const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verificationCode, setVerificationCode] = useState(Array(6).fill(""));
   const [savedVerificationCode, setSavedVerificationCode] = useState("");
   const [timer, setTimer] = useState(300);
 
   useEffect(() => {
-    let interval;
-    if (isModalOpen && timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-    } else if (timer === 0) {
-      alert("인증 코드가 만료되었습니다.");
-      setIsModalOpen(false);
-      setTimer(300);
-    }
-
+    let interval = startTimer(isModalOpen, timer, setTimer, setIsModalOpen);
     return () => clearInterval(interval);
   }, [isModalOpen, timer]);
 
-  const handleVerificationCode = async () => {
-    if (!validateEmail(email)) {
-      alert("유효한 이메일 주소를 입력하세요.");
-      return;
-    }
-
-    try {
-      const message = await sendVerificationCode(email);
-      alert(message);
-      setError("");
-      setIsModalOpen(true);
-      setTimer(300);
-    } catch (error) {
-      alert(error.message);
-    }
+  const handleVerificationCodeClick = async () => {
+    await handleVerificationCode(email, validateEmail, sendVerificationCode, setIsModalOpen, setTimer);
   };
 
-  const handleModalSubmit = (event) => {
+  const handleModalSubmitClick = (event) => {
     event.preventDefault();
-    const code = verificationCode.join("");
-    setSavedVerificationCode(code);
-    console.log("입력한 인증 코드:", code);
-    setIsModalOpen(false);
-    setTimer(300);
+    handleModalSubmit(verificationCode, setSavedVerificationCode, setIsModalOpen);
   };
 
-  const handleSignup = async (event) => {
+  const handleSignupClick = async (event) => {
     event.preventDefault();
 
     if (!validateEmail(email)) {
@@ -94,34 +73,26 @@ const SignupPage = () => {
       verificationCode: parseInt(savedVerificationCode),
     };
 
-    try {
-      await signupUser(userData);
-      alert('회원가입이 완료되었습니다.');
-      setError("");
-      navigate("/sign-in");
-    } catch (error) {
-      alert(error.message);
-    }
+    await handleSignup(userData, signupUser, navigate);
   };
 
-  const handleCodeChange = (index, value) => {
+  const handleCodePaste = (index, event) => {
+    const pastedData = event.clipboardData.getData('text').replace(/\s/g, '');
     const newCode = [...verificationCode];
-    newCode[index] = value;
+
+    for (let i = 0; i < pastedData.length && index + i < verificationCode.length; i++) {
+      newCode[index + i] = pastedData.charAt(i);
+    }
+
     setVerificationCode(newCode);
-
-    if (value && index < verificationCode.length - 1) {
-      document.getElementById(`code-input-${index + 1}`).focus();
-    }
-
-    if (!value && index > 0) {
-      document.getElementById(`code-input-${index - 1}`).focus();
-    }
+    const nextIndex = Math.min(index + pastedData.length, verificationCode.length - 1);
+    document.getElementById(`code-input-${nextIndex}`).focus();
   };
 
   return (
     <div className="container">
       <h2 className="title">회원가입</h2>
-      <form className="form" onSubmit={handleSignup}>
+      <form className="form" onSubmit={handleSignupClick}>
         <div className="form-group">
           <div className="label-wrapper">
             <label htmlFor="email" className="label">
@@ -141,7 +112,7 @@ const SignupPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            <button type="button" className="verify-button" onClick={handleVerificationCode}>
+            <button type="button" className="verify-button" onClick={handleVerificationCodeClick}>
               인증코드 발송
             </button>
           </div>
@@ -223,17 +194,18 @@ const SignupPage = () => {
           <div className="modal-content">
             <h2>인증 코드 입력</h2>
             <p>남은 시간: {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}</p>
-            <form onSubmit={handleModalSubmit}>
+            <form onSubmit={handleModalSubmitClick}>
               <div className="code-input">
                 {verificationCode.map((code, index) => (
                   <input
                     key={index}
                     id={`code-input-${index}`}
                     type="text"
-                    maxLength={1}
                     value={code}
-                    onChange={(e) => handleCodeChange(index, e.target.value)}
+                    onChange={(e) => handleCodeChange(index, e.target.value, verificationCode, setVerificationCode)}
+                    onPaste={(e) => handleCodePaste(index, e)}
                     className="verification-input"
+                    maxLength={1}
                   />
                 ))}
               </div>

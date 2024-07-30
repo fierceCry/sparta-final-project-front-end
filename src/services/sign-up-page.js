@@ -45,3 +45,62 @@ export const validatePassword = (password) => {
 export const validateNickname = (nickname) => {
   return nickname.length >= 2 && nickname.length <= 20;
 };
+
+export const startTimer = (isModalOpen, timer, setTimer, setIsModalOpen) => {
+  if (isModalOpen && timer > 0) {
+    return setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+  } else if (timer === 0) {
+    alert("인증 코드가 만료되었습니다.");
+    setIsModalOpen(false);
+    setTimer(300);
+  }
+};
+
+export const handleVerificationCode = async (email, validateEmail, sendVerificationCode, setIsModalOpen, setTimer) => {
+  if (!validateEmail(email)) {
+    alert("유효한 이메일 주소를 입력하세요.");
+    return;
+  }
+
+  try {
+    const message = await sendVerificationCode(email);
+    alert(message);
+    setIsModalOpen(true);
+    setTimer(300);
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+export const handleModalSubmit = (verificationCode, setSavedVerificationCode, setIsModalOpen) => {
+  const code = verificationCode.join("");
+  setSavedVerificationCode(code);
+  console.log("입력한 인증 코드:", code);
+  setIsModalOpen(false);
+};
+
+export const handleSignup = async (userData, signupUser, navigate) => {
+  try {
+    await signupUser(userData);
+    alert('회원가입이 완료되었습니다.');
+    navigate("/sign-in");
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+export const handleCodeChange = (index, value, verificationCode, setVerificationCode) => {
+  const newCode = [...verificationCode];
+  newCode[index] = value;
+  setVerificationCode(newCode);
+
+  if (value && index < verificationCode.length - 1) {
+    document.getElementById(`code-input-${index + 1}`).focus();
+  }
+
+  if (!value && index > 0) {
+    document.getElementById(`code-input-${index - 1}`).focus();
+  }
+};

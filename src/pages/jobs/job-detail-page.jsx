@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from 'axios';
+import { fetchJobDetail, applyForJob } from '../../services/job'; // 서비스 파일 임포트
 import "../../styles/jobs/job-detail-page.scss";
-import { refreshAccessToken } from '../../services/auth.serivce';
 
 const JobDetailPage = () => {
   const { id } = useParams();
@@ -12,49 +11,24 @@ const JobDetailPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchJobDetail = async () => {
+    const loadJobDetail = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/jobs/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log("Job Detail Response:", response.data);
-        setJob(response.data.job);
+        const jobData = await fetchJobDetail(id, navigate);
+        setJob(jobData);
       } catch (err) {
-        if (err.response && err.response.status === 401) {
-          const newToken = await refreshAccessToken(navigate);
-          if (newToken) {
-            fetchJobDetail();
-          }
-        } else {
-          setError("잡 정보 가져오는 데 실패했습니다.");
-        }
+        setError(err.message);
       }
     };
 
-    fetchJobDetail();
+    loadJobDetail();
   }, [id, navigate]);
 
   const handleApply = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/${id}`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await applyForJob(id, navigate);
       alert("지원이 완료되었습니다.");
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        const newToken = await refreshAccessToken(navigate);
-        if (newToken) {
-          handleApply(); 
-        }
-      } else {
-        setError("지원하는 데 실패했습니다.");
-      }
+      setError(err.message);
     }
   };
 
@@ -86,7 +60,7 @@ const JobDetailPage = () => {
           </h1>
         </div>
         <div className="header-right">
-        <Bell onClick={() => navigate("/notifications")} />
+          <Bell onClick={() => navigate("/notifications")} />
           <Send onClick={() => navigate("/chatlist")} />
           <User onClick={() => navigate("/user")} />
         </div>

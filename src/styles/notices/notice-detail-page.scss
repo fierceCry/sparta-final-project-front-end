@@ -69,6 +69,7 @@ $shadow-color: rgba(0, 0, 0, 0.1);
       border-radius: 0.5rem;
       padding: 1rem;
       box-shadow: 0 2px 4px $shadow-color;
+      position: relative; // 추가: 버튼 위치 조정을 위해 relative 설정
 
       h2 {
         font-size: 1.2rem;
@@ -85,9 +86,102 @@ $shadow-color: rgba(0, 0, 0, 0.1);
       .notice-content {
         line-height: 1.5;
       }
+
+      .action-buttons {
+        position: absolute; // 추가: 절대 위치로 설정
+        top: 1rem; // 상단 여백 조정
+        right: 1rem; // 오른쪽 여백 조정
+        display: flex;
+        gap: 1rem; // 버튼 사이의 간격
+
+        .edit-button,
+        .delete-button {
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 0.25rem;
+          cursor: pointer;
+          font-weight: bold;
+
+          &.edit-button {
+            background-color: #4caf50; // 수정 버튼 색상
+            color: white;
+          }
+
+          &.delete-button {
+            background-color: #f44336; // 삭제 버튼 색상
+            color: white;
+          }
+
+          &:hover {
+            opacity: 0.8;
+          }
+        }
+      }
     }
   }
 }
+
+// notice-detail-page.scss (기존 스타일에 추가)
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 400px;
+
+  .form-group {
+    margin-bottom: 1rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 0.25rem;
+
+      &:focus {
+        border-color: #f87171;
+        outline: none;
+      }
+    }
+  }
+
+  .submit-button,
+  .close-button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    margin-right: 0.5rem;
+
+    &.submit-button {
+      background-color: #f87171;
+      color: white;
+    }
+
+    &.close-button {
+      background-color: #ccc;
+    }
+  }
+}
+
 
 @media (max-width: 941px) {
   .notice-detail-page {

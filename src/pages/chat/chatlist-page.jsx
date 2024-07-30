@@ -3,7 +3,7 @@ import { Bell, Send, User, MoreVertical, ChevronLeft, ChevronRight } from "lucid
 import "../../styles/chat/chat-list-page.scss";
 import { useNavigate, Link } from "react-router-dom";
 import axios from 'axios';
-import { refreshAccessToken } from '../../services/auth.serivce';
+import { refreshAccessToken } from '../../services/auth.service';
 
 const ChatMessage = ({ sender, message, lastMessageTime, onReport, onClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
