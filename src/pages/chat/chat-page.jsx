@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Bell, User, Send } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import "../styles/chat-page.scss";
-import "../styles/chat-modal.scss";
-import { mockChatData } from '../mock-data/chat';
+import { io } from "socket.io-client"; 
+import "../../styles/chat/chat-page.scss";
+import "../../styles/chat/chat-modal.scss";
+
+const socket = io(process.env.REACT_APP_SOCKET_URL); 
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -13,8 +15,15 @@ const Chat = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    const filteredMessages = mockChatData.filter((msg) => msg.chatRoomsId === parseInt(id));
-    setChatMessages(filteredMessages);
+    socket.emit("joinRoom", id); 
+
+    socket.on("message", (message) => {
+      setChatMessages((prevMessages) => [...prevMessages, message]);
+    });
+
+    return () => {
+      socket.off("message"); 
+    };
   }, [id]);
 
   const handleSendMessage = () => {
@@ -22,14 +31,15 @@ const Chat = () => {
       const newChatMessage = {
         id: chatMessages.length + 1,
         senderId: 2,
-        receiverId: 1,
-        chatRoomsId: parseInt(id),
+        receiverId: 1, 
+        chatRoomsId: parseInt(id), 
         content: newMessage.trim(),
         createdAt: new Date(),
         updatedAt: new Date(),
         deletedAt: null,
       };
-      setChatMessages([...chatMessages, newChatMessage]);
+
+      socket.emit("sendMessage", newChatMessage);
       setNewMessage("");
     }
   };
@@ -38,16 +48,12 @@ const Chat = () => {
     setModalVisible(!modalVisible);
   };
 
-  const handleUserIconClick = () => {
-    navigate("/user");
-  };
-
-  const handleChatListClick = () => {
-    navigate("/chatlist");
-  };
-
   const handleMainClick = () => {
     navigate("/main");
+  };
+
+  const handleReportClick = () => {
+    navigate("/report");
   };
 
   return (
@@ -58,9 +64,9 @@ const Chat = () => {
         </h1>
         <div className="header-icons">
           <input type="text" className="search-input" placeholder="검색..." />
-          <Bell />
-          <Send onClick={handleChatListClick} style={{ cursor: "pointer" }} />
-          <User onClick={handleUserIconClick} style={{ cursor: "pointer" }} />
+          <Bell onClick={() => navigate("/notifications")} />
+          <Send onClick={() => navigate("/chatlist")} />
+          <User onClick={() => navigate("/user")} />
         </div>
       </header>
 
@@ -104,7 +110,7 @@ const Chat = () => {
               X
             </button>
             <button>나가기</button>
-            <button>신고하기</button>
+            <button onClick={handleReportClick}>신고하기</button>
             <button>블랙리스트</button>
           </div>
         </div>

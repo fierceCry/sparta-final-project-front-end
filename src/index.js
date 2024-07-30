@@ -3,17 +3,19 @@ import ReactDOM from "react-dom/client";
 import reportWebVitals from "./reportWebVitals";
 import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import SignupPage from "./pages/signup-page";
-import LoginPage from "./pages/signin-page";
-import MainPage from "./pages/main-page";
-import RegisterJob from "./pages/job-create-page";
-import UserInfoPage from "./pages/users-page";
-import JobDetailPage from "./pages/job-detail-page";
-import NoticePage from "./pages/notice-detail-page";
-import ReportPage from "./pages/report-page";
-import ChatListPage from "./pages/chatlist-page";
-import Chat from "./pages/chat-page";
-import Notifications from "./pages/notifications-page";
+import SignupPage from "./pages/auth/signup-page";
+import LoginPage from "./pages/auth/signin-page";
+import MainPage from "./pages/main/main-page";
+import RegisterJob from "./pages/jobs/job-create-page";
+import UserInfoPage from "./pages/users/users-page";
+import JobDetailPage from "./pages/jobs/job-detail-page";
+import NoticePage from "./pages/notices/notice-detail-page";
+import ReportPage from "./pages/reports/report-page";
+import ChatListPage from "./pages/chat/chatlist-page";
+import Chat from "./pages/chat/chat-page";
+import Notifications from "./pages/notifications/notifications-page";
+import JobMatching from './pages/jobs/job-matching'
+import JobApplications from './pages/jobs/job-list'
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -31,6 +33,8 @@ root.render(
       <Route path="/chatlist" element={<ChatListPage />} />
       <Route path="/chat/:id" element={<Chat />} />
       <Route path="/notifications" element={<Notifications />} />
+      <Route path="/job-matching" element={<JobMatching />} />
+      <Route path="/user-applications" element={<JobApplications />} />
     </Routes>
   </BrowserRouter>,
 );

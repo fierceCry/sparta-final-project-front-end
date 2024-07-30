@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Mail, Lock, User } from "lucide-react";
 import {
   sendVerificationCode,
   signupUser,
   validateEmail,
   validatePassword,
-} from "../services/sign-up-page";
-import "../styles/signup-page.scss";
+} from "../../services/sign-up-page";
+import "../../styles/auth/signup-page.scss";
 import { useNavigate } from "react-router-dom";
 
 const SignupPage = () => {
@@ -20,6 +20,22 @@ const SignupPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [verificationCode, setVerificationCode] = useState(Array(6).fill(""));
   const [savedVerificationCode, setSavedVerificationCode] = useState("");
+  const [timer, setTimer] = useState(300);
+
+  useEffect(() => {
+    let interval;
+    if (isModalOpen && timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (timer === 0) {
+      alert("인증 코드가 만료되었습니다.");
+      setIsModalOpen(false);
+      setTimer(300);
+    }
+
+    return () => clearInterval(interval);
+  }, [isModalOpen, timer]);
 
   const handleVerificationCode = async () => {
     if (!validateEmail(email)) {
@@ -32,6 +48,7 @@ const SignupPage = () => {
       alert(message);
       setError("");
       setIsModalOpen(true);
+      setTimer(300);
     } catch (error) {
       alert(error.message);
     }
@@ -40,9 +57,10 @@ const SignupPage = () => {
   const handleModalSubmit = (event) => {
     event.preventDefault();
     const code = verificationCode.join("");
-    setSavedVerificationCode(code); 
+    setSavedVerificationCode(code);
     console.log("입력한 인증 코드:", code);
     setIsModalOpen(false);
+    setTimer(300);
   };
 
   const handleSignup = async (event) => {
@@ -72,7 +90,7 @@ const SignupPage = () => {
       email,
       password,
       passwordCheck: passwordConfirm,
-      name, 
+      name,
       verificationCode: parseInt(savedVerificationCode),
     };
 
@@ -187,7 +205,7 @@ const SignupPage = () => {
               required
               className="input"
               placeholder="예) 홍길동"
-              value={name} 
+              value={name}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
@@ -195,13 +213,7 @@ const SignupPage = () => {
 
         <div className="button-group">
           <button type="submit" className="button">
-            개인 회원가입
-          </button>
-        </div>
-
-        <div className="button-group">
-          <button type="button" className="button">
-            업장 회원가입
+            회원가입
           </button>
         </div>
       </form>
@@ -210,6 +222,7 @@ const SignupPage = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>인증 코드 입력</h2>
+            <p>남은 시간: {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}</p>
             <form onSubmit={handleModalSubmit}>
               <div className="code-input">
                 {verificationCode.map((code, index) => (

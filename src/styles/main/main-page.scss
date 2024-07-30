@@ -66,13 +66,15 @@ $shadow-color: rgba(0, 0, 0, 0.1);
           justify-content: space-between;
           align-items: center;
           margin-bottom: 1rem;
-
+        
           h2 {
             font-size: 1.25rem;
             font-weight: 600;
+            margin-right: auto; // 잡일 목록 텍스트와 버튼 간격을 유지하기 위해 추가
           }
-
-          .register-button {
+        
+          .register-button,
+          .register-list-button {
             display: flex;
             align-items: center;
             background-color: $primary-color;
@@ -82,16 +84,18 @@ $shadow-color: rgba(0, 0, 0, 0.1);
             text-decoration: none;
             font-weight: 600;
             transition: background-color 0.2s ease-in-out;
-
+            margin-left: 0.5rem; // 버튼 간의 간격을 조정
+        
             &:hover {
               background-color: darken($primary-color, 10%);
             }
-
+        
             svg {
               margin-right: 0.5rem;
             }
           }
         }
+        
 
         .alarm-grid {
           display: grid;
@@ -137,6 +141,26 @@ $shadow-color: rgba(0, 0, 0, 0.1);
           font-size: 1.25rem;
           font-weight: 600;
           margin-bottom: 1rem;
+        }
+        .create-notice-button{
+          display: flex;
+          align-items: center;
+          background-color: $primary-color;
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 0.25rem;
+          text-decoration: none;
+          font-weight: 600;
+          transition: background-color 0.2s ease-in-out;
+          margin-left: 0.5rem; // 버튼 간의 간격을 조정
+      
+          &:hover {
+            background-color: darken($primary-color, 10%);
+          }
+      
+          svg {
+            margin-right: 0.5rem;
+          }
         }
 
         .notice-content {

@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
 import axios from 'axios';
-import "../styles/notice-detail-page.scss";
+import "../../styles/notices/notice-detail-page.scss";
+import { refreshAccessToken } from '../../services/auth.serivce';
 
 const NoticePage = () => {
-  const { id } = useParams(); // URL에서 ID 가져오기
+  const { id } = useParams();
   const navigate = useNavigate();
   const [notice, setNotice] = useState(null);
   const [error, setError] = useState(null);
@@ -29,12 +30,19 @@ const NoticePage = () => {
           imageUrl: response.data.data.imageUrl,
         });
       } catch (err) {
-        setError("공지사항을 가져오는 데 실패했습니다.");
+        if (err.response && err.response.status === 401) {
+          const newToken = await refreshAccessToken(navigate);
+          if (newToken) {
+            fetchNoticeDetail();
+          }
+        } else {
+          setError("공지사항을 가져오는 데 실패했습니다.");
+        }
       }
     };
 
     fetchNoticeDetail();
-  }, [id]);
+  }, [id, navigate]);
 
   if (error) {
     return <div>{error}</div>;
@@ -61,7 +69,7 @@ const NoticePage = () => {
         </div>
         <div className="header-icons">
           <Bell onClick={() => navigate("/notifications")} />
-          <Send onClick={() => navigate("/messages")} />
+          <Send onClick={() => navigate("/chatlist")} />
           <User onClick={() => navigate("/user")} />
         </div>
       </header>

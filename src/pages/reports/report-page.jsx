@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, Bell, Send, User } from "lucide-react";
 import axios from 'axios';
-import "../styles/report-page.scss";
-import { ReportReason } from "../components/report-enum";
+import "../../styles/reports/report-page.scss";
+import { ReportReason } from "../../components/report-enum";
+import { refreshAccessToken } from '../../services/auth.serivce'; 
 
 const ReportPage = () => {
   const [email, setEmail] = useState("");
@@ -16,26 +17,31 @@ const ReportPage = () => {
     console.log("신고 제출:", { email, reason, details });
 
     try {
-      const token = localStorage.getItem('accessToken');
+      let token = localStorage.getItem('accessToken');
+
       await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/reports`, {
         email,
         reason,
-        description:details,
+        description: details,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       alert("신고가 제출되었습니다.");
       navigate("/main");
     } catch (error) {
-      console.error("신고 제출 실패:", error);
-      alert("신고 제출에 실패했습니다. 다시 시도해 주세요.");
+      if (error.response && error.response.status === 401) {
+        const newToken = await refreshAccessToken(navigate);
+        if (newToken) {
+          handleSubmit(e); 
+        }
+      } else {
+        console.error("신고 제출 실패:", error);
+        alert("신고 제출에 실패했습니다. 다시 시도해 주세요.");
+      }
     }
-  };
-
-  const handleUserIconClick = () => {
-    navigate("/user");
   };
 
   const handleMainClick = () => {
@@ -54,9 +60,9 @@ const ReportPage = () => {
           </h1>
         </div>
         <div className="report-page__header-right">
-          <Bell />
-          <Send />
-          <User onClick={handleUserIconClick} style={{ cursor: "pointer" }} />
+          <Bell onClick={() => navigate("/notifications")} />
+          <Send onClick={() => navigate("/chatlist")} />
+          <User onClick={() => navigate("/user")} />
         </div>
       </header>
       <main className="report-page__main">

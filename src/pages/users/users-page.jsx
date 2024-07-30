@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import "../styles/users-page.scss";
+import "../../styles/users/users-page.scss";
+import { refreshAccessToken } from '../../services/auth.serivce';
 
 const UserInfoPage = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const UserInfoPage = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const fetchUserInfo = async () => {
+  const fetchUserInfo = useCallback(async () => {
     try {
       const token = localStorage.getItem('accessToken');
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/users/me`, {
@@ -23,20 +24,22 @@ const UserInfoPage = () => {
         },
       });
       setUserInfo(response.data);
-      setEmail(response.data.email); // 초기 이메일 설정
-      setName(response.data.name); // 초기 이름 설정
+      setEmail(response.data.email);
+      setName(response.data.name);
     } catch (err) {
-      setError("사용자 정보를 가져오는 데 실패했습니다.");
+      if (err.response && err.response.status === 401) {
+        const newToken = await refreshAccessToken(navigate);
+        if (newToken) {
+          fetchUserInfo();
+        }
+      } else {
+        setError("사용자 정보를 가져오는 데 실패했습니다.");
+      }
     }
-  };
-
+  }, [navigate]); 
   useEffect(() => {
-    fetchUserInfo(); // 컴포넌트가 마운트될 때 사용자 정보 가져오기
-  }, []);
-
-  const handleUserIconClick = () => {
-    navigate("/user");
-  };
+    fetchUserInfo(); 
+  }, [fetchUserInfo]);
 
   const handleMainClick = () => {
     navigate("/main");
@@ -44,14 +47,14 @@ const UserInfoPage = () => {
 
   const handlePersonalInfoChange = async () => {
     if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다."); // 비밀번호 불일치 경고
+      alert("비밀번호가 일치하지 않습니다."); 
       return;
     }
 
     try {
       const token = localStorage.getItem('accessToken');
       await axios.patch(`${process.env.REACT_APP_API_URL}/api/v1/users/me`, {
-        name, // 이름 추가
+        name, 
         email,
         newPassword: password,
         currentPasswordCheck: confirmPassword
@@ -62,14 +65,20 @@ const UserInfoPage = () => {
       });
       alert("개인정보가 변경되었습니다.");
       setIsModalOpen(false);
-      fetchUserInfo(); // 사용자 정보 다시 가져오기
+      fetchUserInfo();
     } catch (err) {
-      console.log(err.response.data.message)
-      // setError("개인정보 변경에 실패했습니다.");
-      if(err.response.data.message === '이메일이 이미 존재합니다.'){
-        alert('이메일이 이미 존재합니다.')
+      if (err.response && err.response.status === 401) {
+        const newToken = await refreshAccessToken(navigate);
+        if (newToken) {
+          handlePersonalInfoChange(); 
+        }
+      } else {
+        console.log(err.response.data.message);
+        if (err.response.data.message === '이메일이 이미 존재합니다.') {
+          alert('이메일이 이미 존재합니다.');
+        }
+        console.error(err);
       }
-      console.error(err);
     }
   };
 
@@ -115,6 +124,11 @@ const UserInfoPage = () => {
     return <div>로딩 중...</div>;
   }
 
+
+  const handleWithdraw = () => {
+    navigate("/user-applications");
+  };
+
   return (
     <div className="user-info-page">
       <header>
@@ -127,9 +141,9 @@ const UserInfoPage = () => {
           </h1>
         </div>
         <div className="header-right">
-          <Bell />
-          <Send />
-          <User onClick={handleUserIconClick} style={{ cursor: "pointer" }} />
+          <Bell onClick={() => navigate("/notifications")} />
+          <Send onClick={() => navigate("/chatlist")} />
+          <User onClick={() => navigate("/user")} />
         </div>
       </header>
       <main>
@@ -151,6 +165,9 @@ const UserInfoPage = () => {
             <span className="value">{userInfo.email}</span>
           </div>
           <div className="button-group">
+          <button className="outline-button" onClick={(handleWithdraw)}>
+              내가 지원한 목록
+            </button>
             <button className="outline-button" onClick={() => setIsModalOpen(true)}>
               개인정보 변경
             </button>

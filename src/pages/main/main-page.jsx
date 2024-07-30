@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import "../styles/main-page.scss";
+import { refreshAccessToken } from '../../services/auth.serivce'; 
+import "../../styles/main/main-page.scss";
 
 const MainPage = () => {
   const navigate = useNavigate();
@@ -12,13 +13,19 @@ const MainPage = () => {
   const [noticePage, setNoticePage] = useState(1);
   const [error, setError] = useState(null);
 
-  const jobsPerPage = 6;
+  const jobsPerPage = 8;
   const noticesPerPage = 2;
 
   useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+      navigate("/sign-in");
+      return;
+    }
+
     const fetchJobs = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/jobs`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -31,13 +38,19 @@ const MainPage = () => {
           setError("잡일 목록을 가져오는 데 실패했습니다.");
         }
       } catch (err) {
-        setError("잡일 목록을 가져오는 데 실패했습니다.");
+        if (err.response && err.response.status === 401) {
+          const newToken = await refreshAccessToken(navigate);
+          if (newToken) {
+            fetchJobs();
+          }
+        } else {
+          setError("잡일 목록을 가져오는 데 실패했습니다.");
+        }
       }
     };
 
     const fetchNotices = async () => {
       try {
-        const token = localStorage.getItem('accessToken');
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/notices`, {
           headers: {
             Authorization: `Bearer ${token}` 
@@ -50,13 +63,20 @@ const MainPage = () => {
           setError("공지사항 목록을 가져오는 데 실패했습니다.");
         }
       } catch (err) {
-        setError("공지사항 목록을 가져오는 데 실패했습니다.");
+        if (err.response && err.response.status === 401) {
+          const newToken = await refreshAccessToken(navigate);
+          if (newToken) {
+            fetchNotices();
+          }
+        } else {
+          setError("공지사항 목록을 가져오는 데 실패했습니다.");
+        }
       }
     };
 
     fetchJobs();
     fetchNotices();
-  }, []);
+  }, [navigate]);
 
   const indexOfLastJob = jobPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
@@ -68,14 +88,6 @@ const MainPage = () => {
 
   const totalJobPages = Math.ceil(jobs.length / jobsPerPage);
   const totalNoticePages = Math.ceil(notices.length / noticesPerPage);
-
-  const handleUserIconClick = () => {
-    navigate("/user");
-  };
-
-  const handleChatListClick = () => {
-    navigate("/chatlist");
-  };
 
   const handleMainClick = () => {
     navigate("/main");
@@ -89,9 +101,9 @@ const MainPage = () => {
         </h1>
         <div className="header-icons">
           <input type="text" placeholder="JOB일 검색" className="search-input" />
-          <Bell />
-          <Send onClick={handleChatListClick} style={{ cursor: "pointer" }} />
-          <User onClick={handleUserIconClick} style={{ cursor: "pointer" }} />
+          <Bell onClick={() => navigate("/notifications")} />
+          <Send onClick={() => navigate("/chatlist")} />
+          <User onClick={() => navigate("/user")} />
         </div>
       </header>
 
@@ -101,6 +113,9 @@ const MainPage = () => {
           <div className="job-list">
             <div className="job-list-header">
               <h2>잡일 목록</h2>
+              <Link to="/job-matching" className="register-list-button">
+                내가 받은 지원 목록
+              </Link>
               <Link to="/register-job" className="register-button">
                 잡일 등록
               </Link>
@@ -138,7 +153,12 @@ const MainPage = () => {
             </div>
           </div>
           <div className="notice-board">
-            <h2>공지사항</h2>
+            <div className="notice-board-header">
+              <h2>공지사항</h2>
+              <Link to="/create-notice" className="create-notice-button">
+                공지사항 생성
+              </Link>
+            </div>
             {currentNotices.map((notice) => (
               <Link to={`/notice/${notice.id}`} key={notice.id} className="notice-content">
                 <h3>{notice.title}</h3>

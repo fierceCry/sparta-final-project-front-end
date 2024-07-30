@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Bell, Send, User, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
-import "../styles/chat-list-page.scss";
+import "../../styles/chat/chat-list-page.scss";
 import { useNavigate, Link } from "react-router-dom";
-import axios from 'axios'; // axios 추가
+import axios from 'axios';
+import { refreshAccessToken } from '../../services/auth.serivce';
 
-const ChatMessage = ({ sender, message, onReport, onClick }) => {
+const ChatMessage = ({ sender, message, lastMessageTime, onReport, onClick }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const toggleDropdown = (e) => {
@@ -12,11 +13,18 @@ const ChatMessage = ({ sender, message, onReport, onClick }) => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const handleReportClick = (e) => {
+    e.stopPropagation();
+    setIsDropdownOpen(false); 
+    onReport(); 
+  };
+
   return (
     <div className="chat-message" onClick={onClick}>
       <div className="chat-content">
         <h3>{sender}</h3>
         <p>{message}</p>
+        <span className="last-message-time">{lastMessageTime}</span>
       </div>
       <div className="dropdown">
         <button onClick={toggleDropdown} className="dropdown-toggle">
@@ -24,8 +32,8 @@ const ChatMessage = ({ sender, message, onReport, onClick }) => {
         </button>
         {isDropdownOpen && (
           <div className="dropdown-menu">
+            <button onClick={handleReportClick}>신고하기</button>
             <button onClick={() => setIsDropdownOpen(false)}>나가기</button>
-            <button onClick={onReport}>신고하기</button>
             <button>블랙리스트</button>
           </div>
         )}
@@ -37,7 +45,7 @@ const ChatMessage = ({ sender, message, onReport, onClick }) => {
 const ChatListPage = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [chatList, setChatList] = useState([]);
+  const [chatList, setChatList] = useState([]); 
   const [error, setError] = useState(null);
   const messagesPerPage = 5;
 
@@ -50,28 +58,35 @@ const ChatListPage = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response)
-          setChatList(response.data.data);
+        console.log(response);
+        setChatList(response.data.findAllChatRooms || []); 
       } catch (err) {
-        setError("채팅 목록을 가져오는 데 실패했습니다."); 
-        console.error(err);
+        if (err.response && err.response.status === 401) {
+          const newToken = await refreshAccessToken(navigate);
+          if (newToken) {
+            fetchChatList();
+          }
+        } else {
+          setError("채팅 목록을 가져오는 데 실패했습니다.");
+          console.error(err);
+        }
       }
     };
 
-    fetchChatList(); 
-  }, []);
+    fetchChatList();
+  }, [navigate]);
 
   const handleMainClick = () => {
     navigate("/main");
   };
 
-  const handleReportClick = (id) => {
-    console.log(`신고하기: ${id}`);
-    navigate("/report");
+  const handleReportClick = () => {
+    console.log("신고하기 클릭");
+    navigate(`/report`); 
   };
 
-  const handleChatClick = (id) => {
-    navigate(`/chat/${id}`);
+  const handleChatClick = (roomId) => {
+    navigate(`/chat/${roomId}`);
   };
 
   const indexOfLastMessage = currentPage * messagesPerPage;
@@ -98,21 +113,26 @@ const ChatListPage = () => {
             </h1>
           </div>
           <div className="icons">
-            <Bell />
-            <Send />
-            <User />
+            <Bell onClick={() => navigate("/notifications")} />
+            <Send onClick={() => navigate("/chatlist")} />
+            <User onClick={() => navigate("/user")} />
           </div>
         </header>
         <main>
-          {currentMessages.map(({ id, sender, message }) => (
-            <ChatMessage
-              key={id}
-              sender={sender}
-              message={message}
-              onReport={() => handleReportClick(id)}
-              onClick={() => handleChatClick(id)}
-            />
-          ))}
+          {currentMessages.length > 0 ? (
+            currentMessages.map(({ roomId, receiverName, lastMessage, lastMessageTime }) => (
+              <ChatMessage
+                key={roomId}
+                sender={receiverName}
+                message={lastMessage}
+                lastMessageTime={new Date(lastMessageTime).toLocaleString()}
+                onReport={handleReportClick} 
+                onClick={() => handleChatClick(roomId)}
+              />
+            ))
+          ) : (
+            <div>채팅 목록이 없습니다.</div>
+          )}
         </main>
         <footer className="pagination">
           <button 

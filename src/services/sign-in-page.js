@@ -1,13 +1,42 @@
-export const signin = {
-  handleNaverLogin: async () => {
-    window.location.href = `${process.env.REACT_APP_API_URL}/auth/naver`;
-  },
+import axios from 'axios';
 
-  handleKakaoLogin: async () => {
-    window.location.href = `${process.env.REACT_APP_API_URL}/auth/kakao`;
-  },
+const API_URL = process.env.REACT_APP_API_URL;
 
-  handleGoogleLogin: async () => {
-    window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
-  },
+export const signin = async (email, password) => {
+  try {
+    const response = await axios.post(`${API_URL}/api/v1/auth/sign-in`, {
+      email,
+      password,
+    });
+
+    const { accessToken, refreshToken } = response.data;
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+
+    return response.data; // 반환값을 추가하여 처리할 수 있게 함
+  } catch (error) {
+    throw new Error("아이디와 비밀번호를 확인하세요.");
+  }
+};
+
+export const validateEmail = (email) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regex.test(email);
+};
+
+export const validatePassword = (password) => {
+  return password.length >= 8;
+};
+
+// 소셜 로그인 핸들러 추가
+export const handleKakaoLogin = () => {
+  window.location.href = `${process.env.REACT_APP_API_URL}/auth/kakao`;
+};
+
+export const handleNaverLogin = () => {
+  window.location.href = `${process.env.REACT_APP_API_URL}/auth/naver`;
+};
+
+export const handleGoogleLogin = () => {
+  window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
 };
