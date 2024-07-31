@@ -3,7 +3,7 @@ import { ChevronLeft, Bell, Send, User } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { refreshAccessToken } from "../../services/auth.service";
-import "../../styles/jobs/job-matching.scss";
+import "../../styles/jobs/job-list.scss";
 
 const JobApplications = () => {
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ const JobApplications = () => {
         });
         console.log(response);
         
+        // 응답 데이터에서 Matching 배열을 가져옵니다.
         setApplications(response.data.Matching || []); 
       } catch (err) {
         if (err.response && err.response.status === 401) {
@@ -43,9 +44,35 @@ const JobApplications = () => {
     fetchApplications();
   }, [navigate]);
 
-  const handleWithdraw = (applicationId) => {
-    console.log(`Application ${applicationId} withdrawn`);
-    // navigate("/user-applications");
+  const handleWithdraw = async (applicationId) => {
+    const token = localStorage.getItem("accessToken");
+    console.log(applicationId)
+    if (!token) {
+      navigate("/sign-in");
+      return;
+    }
+
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/${applicationId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      // 삭제 후, 목록에서 해당 신청 제거
+      setApplications((prevApplications) =>
+        prevApplications.filter((application) => application.id !== applicationId)
+      );
+
+      console.log(`Application ${applicationId} withdrawn`);
+    } catch (err) {
+      setError("삭제하는 데 실패했습니다.");
+      console.error(err);
+    }
+  };
+
+  const handleViewDetails = (jobId) => {
+    navigate(`/job/${jobId}`); // 잡일 상세 조회 페이지로 이동
   };
 
   return (
@@ -72,16 +99,38 @@ const JobApplications = () => {
 
           <div className="job-list">
             {applications.length > 0 ? (
-              applications.map((application) => (
-                <div className={`job-item ${application.matchedYn ? 'matched' : 'not-matched'}`} key={application.id}>
-                  <span>
-                    Job ID: {application.jobId} - 고객 ID: {application.customerId}
-                  </span>
-                  <div className="status-icons">
-                    <button onClick={() => handleWithdraw(application.id)}>삭제</button>
+              applications.map((application) => {
+                const isExpired = application.matchedYn;
+                const isMatched = application.rejectedYn;
+
+                // 클래스 이름 결정
+                let itemClass = '';
+                if (isExpired) {
+                  itemClass = 'matched'; // 초록색
+                } else if (isMatched) {
+                  itemClass = 'not-matched'; // 빨간색
+                }
+
+                return (
+                  <div 
+                    className={`job-item ${itemClass}`} 
+                    key={application.id}
+                    onClick={() => handleViewDetails(application.jobId)} // 잡일 상세 조회로 이동
+                  >
+                    <span>
+                      잡일: {application.job.title}
+                    </span>
+                    <div className="status-icons">
+                      <button onClick={(e) => { 
+                        e.stopPropagation(); // 클릭 이벤트 전파 방지
+                        handleWithdraw(application.id); 
+                      }}>
+                        삭제
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p>지원한 잡일이 없습니다.</p> 
             )}
