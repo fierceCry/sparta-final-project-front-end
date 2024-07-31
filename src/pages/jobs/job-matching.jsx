@@ -15,7 +15,22 @@ const JobMatching = () => {
       setLoading(true);
       try {
         const jobList = await fetchJobs(navigate);
-        setJobs(jobList);
+        const formattedJobs = jobList.map((job) => {
+          const createdAt = new Date(job.createdAt);
+          const date = createdAt.toLocaleDateString();
+          const time = createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+          return {
+            id: job.id,
+            title: job.job.title,
+            date,
+            time,
+            userName: job.users.name,
+            matchedYn: job.matchedYn,
+            rejectedYn: job.rejectedYn,
+          };
+        });
+        setJobs(formattedJobs);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -31,8 +46,8 @@ const JobMatching = () => {
       await acceptJob(jobId, navigate);
       setJobs((prevJobs) =>
         prevJobs.map((job) =>
-          job.id === jobId ? { ...job, matchedYn: true, rejectedYn: false } : job
-        )
+          job.id === jobId ? { ...job, matchedYn: true, rejectedYn: false } : job,
+        ),
       );
     } catch (err) {
       setError(err.response?.data?.message || "수락 처리에 실패했습니다.");
@@ -44,8 +59,8 @@ const JobMatching = () => {
       await rejectJob(jobId, navigate);
       setJobs((prevJobs) =>
         prevJobs.map((job) =>
-          job.id === jobId ? { ...job, matchedYn: false, rejectedYn: true } : job
-        )
+          job.id === jobId ? { ...job, matchedYn: false, rejectedYn: true } : job,
+        ),
       );
     } catch (err) {
       setError(err.response?.data?.message || "거절 처리에 실패했습니다.");
@@ -64,6 +79,15 @@ const JobMatching = () => {
     } else {
       return "대기중";
     }
+  };
+
+  const getStatusClass = (job) => {
+    if (job.matchedYn) {
+      return "matched"; // 초록색
+    } else if (job.rejectedYn) {
+      return "not-matched"; // 빨간색
+    }
+    return ""; // 대기중일 경우 아무 색상도 없음
   };
 
   return (
@@ -92,16 +116,29 @@ const JobMatching = () => {
           <div className="job-list">
             {jobs.length > 0 ? (
               jobs.map((job) => (
-                <div className={`job-item ${job.status}`} key={job.id}>
-                  <span>
-                    {job.date} - {job.title} - {getStatusText(job)}
-                  </span>
+                <div className={`job-item ${getStatusClass(job)}`} key={job.id}>
+                  <div className="job-details">
+                    <span className="job-title">잡일 : {job.title}</span>
+                    <span className="applicant-name">지원자: {job.userName}</span>
+                    <div className="job-footer"></div>
+                  </div>
                   <div className="job-actions">
-                    <Clock style={{ marginRight: "4px" }} />
-                    <span>{getStatusText(job)}</span>
-                    <button onClick={() => handleChat(job.id)}>채팅</button>
-                    <button onClick={() => handleAccept(job.id)}>수락</button>
-                    <button onClick={() => handleReject(job.id)}>삭제</button>
+                    <span className="status-text">{getStatusText(job)}</span>
+                    <button className="chat" onClick={() => handleChat(job.id)}>
+                      채팅
+                    </button>
+                    <button className="accept" onClick={() => handleAccept(job.id)}>
+                      수락
+                    </button>
+                    <button className="reject" onClick={() => handleReject(job.id)}>
+                      거절
+                    </button>
+                    <div className="job-time">
+                      <Clock style={{ marginRight: "4px" }} />
+                      <span>
+                        {job.date} {job.time}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))

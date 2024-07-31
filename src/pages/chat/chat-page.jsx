@@ -16,14 +16,11 @@ const Chat = () => {
   const token = localStorage.getItem("accessToken"); // 예: localStorage
 
   const socket = io('http://localhost:3333', {
-    extraHeaders: {
-      authorization: `Bearer ${token}`, // JWT 토큰
+    auth: {
+      token: `Bearer ${token}`, // JWT 토큰
     },
   });
-  
-  
-  
-  
+
   useEffect(() => {
     // 채팅방에 조인
     socket.emit("joinRoom", { userId: id }); 
