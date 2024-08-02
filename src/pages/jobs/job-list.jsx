@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Bell, Send, User } from "lucide-react";
+import { ChevronLeft, Bell, Send, User, ChevronRight } from "lucide-react"; // ChevronRight 추가
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { refreshAccessToken } from "../../services/auth.service";
@@ -7,8 +7,12 @@ import "../../styles/jobs/job-list.scss";
 
 const JobApplications = () => {
   const navigate = useNavigate();
-  const [applications, setApplications] = useState([]); 
+  const [applications, setApplications] = useState([]);
   const [error, setError] = useState(null);
+  
+  // 페이지네이션 상태 추가
+  const [currentPage, setCurrentPage] = useState(1);
+  const applicationsPerPage = 6; // 페이지당 보여줄 지원 목록 수
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -20,6 +24,8 @@ const JobApplications = () => {
 
     const fetchApplications = async () => {
       try {
+        const token = localStorage.getItem("accessToken");
+
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/apply`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,7 +52,6 @@ const JobApplications = () => {
 
   const handleWithdraw = async (applicationId) => {
     const token = localStorage.getItem("accessToken");
-    console.log(applicationId)
     if (!token) {
       navigate("/sign-in");
       return;
@@ -75,6 +80,24 @@ const JobApplications = () => {
     navigate(`/job/${jobId}`); // 잡일 상세 조회 페이지로 이동
   };
 
+  // 현재 페이지에 맞는 지원 목록을 가져오는 함수
+  const indexOfLastApplication = currentPage * applicationsPerPage;
+  const indexOfFirstApplication = indexOfLastApplication - applicationsPerPage;
+  const currentApplications = applications.slice(indexOfFirstApplication, indexOfLastApplication);
+
+  // 페이지 변경 핸들러
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < Math.ceil(applications.length / applicationsPerPage)) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   return (
     <div className="job-matching">
       <header>
@@ -98,8 +121,8 @@ const JobApplications = () => {
           {error && <p className="error-message">{error}</p>} 
 
           <div className="job-list">
-            {applications.length > 0 ? (
-              applications.map((application) => {
+            {currentApplications.length > 0 ? (
+              currentApplications.map((application) => {
                 const isExpired = application.matchedYn;
                 const isMatched = application.rejectedYn;
 
@@ -136,9 +159,18 @@ const JobApplications = () => {
             )}
           </div>
 
-          <div className="load-more">
-            <button>더보기</button>
-          </div>
+          {/* 페이지네이션 - 화살표 버튼 */}
+          {applications.length > applicationsPerPage && (
+            <div className="pagination">
+              <button onClick={handlePrevPage} disabled={currentPage === 1}>
+                <ChevronLeft />
+              </button>
+              <span>{currentPage} / {Math.ceil(applications.length / applicationsPerPage)}</span>
+              <button onClick={handleNextPage} disabled={currentPage === Math.ceil(applications.length / applicationsPerPage)}>
+                <ChevronRight />
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

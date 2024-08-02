@@ -57,6 +57,14 @@ const MainPage = () => {
     navigate("/main");
   };
 
+  // 텍스트를 일정 길이로 제한하고 "..." 추가
+  const truncateText = (text, maxLength) => {
+    if (text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
+
   return (
     <div className="main-page">
       <header>
@@ -90,7 +98,7 @@ const MainPage = () => {
                   <Link to={`/job/${job.id}`} key={job.id} className="alarm-card">
                     <div className="card-content">
                       <h3>{job.title}</h3>
-                      <p>시작 {job.price}원</p>
+                      <p>급여 {job.price}원</p>
                     </div>
                   </Link>
                 ))
@@ -123,12 +131,14 @@ const MainPage = () => {
                 공지사항 생성
               </Link>
             </div>
-            {currentNotices.map((notice) => (
-              <Link to={`/notice/${notice.id}`} key={notice.id} className="notice-content">
-                <h3>{notice.title}</h3>
-                <p>{notice.description}</p>
-              </Link>
-            ))}
+            <div className="notices-container">
+              {currentNotices.map((notice) => (
+                <Link to={`/notice/${notice.id}`} key={notice.id} className="notice-content">
+                  <h3>{truncateText(notice.title, 20)}</h3> {/* 제목을 20자로 제한 */}
+                  <p>{truncateText(notice.description, 50)}</p> {/* 설명을 50자로 제한 */}
+                </Link>
+              ))}
+            </div>
             <div className="pagination">
               <button
                 onClick={() => setNoticePage((prev) => Math.max(prev - 1, 1))}
