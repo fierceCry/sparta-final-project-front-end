@@ -89,7 +89,7 @@ const ChatListPage = () => {
                 key={roomId}
                 sender={receiverName}
                 message={lastMessage}
-                lastMessageTime={new Date(lastMessageTime).toLocaleString()}
+                lastMessageTime={lastMessageTime ? new Date(lastMessageTime).toLocaleString() : new Date().toLocaleString()}
                 onReport={handleReportClick} 
                 onClick={() => handleChatClick(roomId, receiverId, receiverName)}
               />

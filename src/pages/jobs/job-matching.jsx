@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Bell, Send, User, Clock, ChevronRight } from "lucide-react"; // ChevronRight 추가
+import { ChevronLeft, Bell, Send, User, Clock, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchJobs, acceptJob, rejectJob } from "../../services/job";
 import "../../styles/jobs/job-matching.scss";
@@ -32,6 +32,7 @@ const JobMatching = () => {
             userName: job.users.name,
             matchedYn: job.matchedYn,
             rejectedYn: job.rejectedYn,
+            customerId: job.customerId,  // customerId 추가
           };
         });
         setJobs(formattedJobs);
@@ -71,8 +72,8 @@ const JobMatching = () => {
     }
   };
 
-  const handleChat = (jobId) => {
-    navigate(`/chat/${jobId}`);
+  const handleChat = (customerId) => {
+    navigate(`/chat/${customerId}`, { state: { receiverId: customerId } });
   };
 
   const getStatusText = (job) => {
@@ -153,7 +154,7 @@ const JobMatching = () => {
                   </div>
                   <div className="job-actions">
                     <span className="status-text">{getStatusText(job)}</span>
-                    <button className="chat" onClick={() => handleChat(job.id)}>
+                    <button className="chat" onClick={() => handleChat(job.customerId)}>
                       채팅
                     </button>
                     <button className="accept" onClick={() => handleAccept(job.id)}>
