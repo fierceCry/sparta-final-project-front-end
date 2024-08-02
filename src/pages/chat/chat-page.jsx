@@ -126,9 +126,9 @@ const Chat = () => {
               className={`chat-message ${chat.senderId === receiverId ? "received" : "sent"}`}
             >
               <div className="message-content">
-                <span className="sender-name">
+                {/* <span className="sender-name">
                   {chat.senderName && chat.senderName.name ? chat.senderName.name : "알 수 없는 사용자"}:                
-                </span>
+                </span> */}
                 <p>{chat.content}</p>
               </div>
             </div>
