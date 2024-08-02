@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Bell, Send, User, Clock } from "lucide-react";
+import { ChevronLeft, Bell, Send, User, Clock, ChevronRight } from "lucide-react"; // ChevronRight 추가
 import { Link, useNavigate } from "react-router-dom";
 import { fetchJobs, acceptJob, rejectJob } from "../../services/job";
 import "../../styles/jobs/job-matching.scss";
@@ -9,6 +9,10 @@ const JobMatching = () => {
   const [jobs, setJobs] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // 페이지네이션 상태 추가
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 6; // 페이지당 보여줄 잡일 수
 
   useEffect(() => {
     const loadJobs = async () => {
@@ -90,6 +94,31 @@ const JobMatching = () => {
     return ""; // 대기중일 경우 아무 색상도 없음
   };
 
+  // 현재 페이지에 맞는 잡일 목록을 가져오는 함수
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  // 페이지 변경 핸들러
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // 총 페이지 수 계산
+  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+
+  // 이전 페이지로 이동
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // 다음 페이지로 이동
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
   return (
     <div className="job-matching">
       <header>
@@ -114,8 +143,8 @@ const JobMatching = () => {
           {error && <p className="error-message">{error}</p>}
 
           <div className="job-list">
-            {jobs.length > 0 ? (
-              jobs.map((job) => (
+            {currentJobs.length > 0 ? (
+              currentJobs.map((job) => (
                 <div className={`job-item ${getStatusClass(job)}`} key={job.id}>
                   <div className="job-details">
                     <span className="job-title">잡일 : {job.title}</span>
@@ -147,9 +176,18 @@ const JobMatching = () => {
             )}
           </div>
 
-          <div className="load-more">
-            <button>더보기</button>
-          </div>
+          {/* 페이지네이션 - 화살표 버튼 */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button onClick={handlePrevPage} disabled={currentPage === 1}>
+                <ChevronLeft />
+              </button>
+              <span>{currentPage} / {totalPages}</span>
+              <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+                <ChevronRight />
+              </button>
+            </div>
+          )}
         </div>
       </main>
     </div>

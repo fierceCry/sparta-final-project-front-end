@@ -1,65 +1,93 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Bell, User, Send } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { io } from "socket.io-client"; 
 import "../../styles/chat/chat-page.scss";
 import "../../styles/chat/chat-modal.scss";
 
 const Chat = () => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); 
+  const location = useLocation();
+  const { receiverId, receiverName } = location.state || {};
+
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [isSending, setIsSending] = useState(false); 
+  const chatContainerRef = useRef(null);
 
-  // 액세스 토큰을 로컬 스토리지나 쿠키에서 가져옵니다.
-  const token = localStorage.getItem("accessToken"); // 예: localStorage
-
-  const socket = io('http://localhost:3333', {
+  const token = localStorage.getItem("accessToken");
+  const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
+  const socket = io(REACT_APP_API_URL, {
     auth: {
-      token: `Bearer ${token}`, // JWT 토큰
+      token: `Bearer ${token}`,
     },
   });
 
   useEffect(() => {
-    // 채팅방에 조인
-    socket.emit("joinRoom", { userId: id }); 
+    console.log(receiverId);
+    socket.emit("joinRoom", { receiverId });
 
-    // 메시지 수신
     socket.on("receiveChat", (message) => {
-      setChatMessages((prevMessages) => [...prevMessages, message]);
+      setChatMessages((prevMessages) => [...prevMessages, message]); 
     });
 
-    // 채팅 업데이트 수신
+    socket.on("chatLog", (logs) => {
+      console.log(logs);
+      setChatMessages(logs);
+    });
+    
     socket.on("chatUpdated", (updatedChat) => {
       setChatMessages((prevMessages) => 
-        prevMessages.map(chat => chat.id === updatedChat.id ? updatedChat : chat)
+        prevMessages.map(chat => chat.id === updatedChat.id ? updatedChat : chat) 
       );
     });
 
-    // 채팅 삭제 수신
     socket.on("chatDeleted", ({ chatId }) => {
       setChatMessages((prevMessages) => 
-        prevMessages.filter(chat => chat.id !== chatId)
+        prevMessages.filter(chat => chat.id !== chatId) 
       );
     });
 
     return () => {
       socket.off("receiveChat");
+      socket.off("chatLog");
       socket.off("chatUpdated");
       socket.off("chatDeleted");
     };
-  }, [id]);
+  }, [id, receiverId]);
+
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
 
   const handleSendMessage = () => {
-    if (newMessage.trim()) {
+    console.log(id);
+    if (newMessage.trim() && !isSending) {
       const newChatMessage = {
-        receiverId: 1, // 수신자 ID
+        receiverId, 
         content: newMessage.trim(),
         chatRoomId: parseInt(id), 
       };
 
+      setIsSending(true);
+      setNewMessage("");
+
       socket.emit("sendChat", newChatMessage);
+
+      setTimeout(() => {
+        setIsSending(false);
+      }, 100); 
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); 
+      handleSendMessage();
       setNewMessage("");
     }
   };
@@ -91,16 +119,18 @@ const Chat = () => {
       </header>
 
       <main className="chat-main">
-        <div className="chat-container">
-          {chatMessages.map((chat) => (
+        <div className="chat-container" ref={chatContainerRef}>
+          {chatMessages.map((chat, index) => (
             <div
-              key={chat.id}
-              className={`chat-message ${chat.senderId === 2 ? "sent" : "received"}`}
+              key={chat.chatId || index}
+              className={`chat-message ${chat.senderId === receiverId ? "received" : "sent"}`}
             >
               <div className="message-content">
+                <span className="sender-name">
+                  {chat.senderName && chat.senderName.name ? chat.senderName.name : "알 수 없는 사용자"}:                
+                </span>
                 <p>{chat.content}</p>
               </div>
-              <span className="sender-name">{chat.senderId === 2 ? "잡일 수락자" : "잡일 등록자"}</span>
             </div>
           ))}
         </div>
@@ -113,8 +143,9 @@ const Chat = () => {
             placeholder="메시지를 입력하세요..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
-          <button className="send-button" onClick={handleSendMessage}>
+          <button className="send-button" onClick={handleSendMessage} disabled={isSending}>
             <Send size={20} />
           </button>
           <button className="action-button" onClick={toggleModal}>

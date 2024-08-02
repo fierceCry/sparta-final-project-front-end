@@ -83,7 +83,7 @@ const JobDetailPage = () => {
                   <span className="value">{job.address}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="label">보수:</span>
+                  <span className="label">급여:</span>
                   <span className="value">{job.price}원</span>
                 </div>
                 <div className="detail-row">

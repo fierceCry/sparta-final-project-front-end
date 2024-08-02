@@ -1,46 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Bell, Send, User, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import "../../styles/chat/chat-list-page.scss";
 import { useNavigate, Link } from "react-router-dom";
 import axios from 'axios';
 import { refreshAccessToken } from '../../services/auth.service';
-
-const ChatMessage = ({ sender, message, lastMessageTime, onReport, onClick }) => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const toggleDropdown = (e) => {
-    e.stopPropagation();
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleReportClick = (e) => {
-    e.stopPropagation();
-    setIsDropdownOpen(false); 
-    onReport(); 
-  };
-
-  return (
-    <div className="chat-message" onClick={onClick}>
-      <div className="chat-content">
-        <h3>{sender}</h3>
-        <p>{message}</p>
-        <span className="last-message-time">{lastMessageTime}</span>
-      </div>
-      <div className="dropdown">
-        <button onClick={toggleDropdown} className="dropdown-toggle">
-          <MoreVertical size={16} />
-        </button>
-        {isDropdownOpen && (
-          <div className="dropdown-menu">
-            <button onClick={handleReportClick}>신고하기</button>
-            <button onClick={() => setIsDropdownOpen(false)}>나가기</button>
-            <button>블랙리스트</button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
+import ChatMessage from './chat-message'; // ChatMessage 컴포넌트 임포트
 
 const ChatListPage = () => {
   const navigate = useNavigate();
@@ -85,8 +49,8 @@ const ChatListPage = () => {
     navigate(`/report`); 
   };
 
-  const handleChatClick = (roomId) => {
-    navigate(`/chat/${roomId}`);
+  const handleChatClick = (roomId, receiverId, receiverName) => {
+    navigate(`/chat/${roomId}`, { state: { receiverId, receiverName } });
   };
 
   const indexOfLastMessage = currentPage * messagesPerPage;
@@ -120,14 +84,14 @@ const ChatListPage = () => {
         </header>
         <main>
           {currentMessages.length > 0 ? (
-            currentMessages.map(({ roomId, receiverName, lastMessage, lastMessageTime }) => (
+            currentMessages.map(({ roomId, receiverId, receiverName, lastMessage, lastMessageTime }) => (
               <ChatMessage
                 key={roomId}
                 sender={receiverName}
                 message={lastMessage}
                 lastMessageTime={new Date(lastMessageTime).toLocaleString()}
                 onReport={handleReportClick} 
-                onClick={() => handleChatClick(roomId)}
+                onClick={() => handleChatClick(roomId, receiverId, receiverName)}
               />
             ))
           ) : (

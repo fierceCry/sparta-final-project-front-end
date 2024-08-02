@@ -64,10 +64,10 @@ export const logoutUser = async (navigate) => {
 
 export const quitUser = async (navigate) => {
   try {
-    await axios.post(`${API_URL}/api/v1/users/quit`, {}, getAuthHeaders());
+    await axios.patch(`${API_URL}/api/v1/users/quit`, {}, getAuthHeaders());
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    navigate("/login");
+    navigate("/sign-in");
   } catch (err) {
     throw new Error("회원탈퇴에 실패했습니다.");
   }
