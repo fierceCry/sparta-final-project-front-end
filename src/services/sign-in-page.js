@@ -4,8 +4,6 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export const signin = async (email, password) => {
   try {
-    console.log(email)
-    console.log(password)
     const response = await axios.post(`${API_URL}/api/v1/auth/sign-in`, {
       email,
       password,
@@ -17,7 +15,6 @@ export const signin = async (email, password) => {
 
     return response.data; // 반환값을 추가하여 처리할 수 있게 함
   } catch (error) {
-    console.log(error)
     throw new Error("아이디와 비밀번호를 확인하세요.");
   }
 };

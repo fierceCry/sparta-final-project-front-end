@@ -14,7 +14,6 @@ const ReportPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("신고 제출:", { email, reason, details });
 
     try {
       let token = localStorage.getItem('accessToken');
@@ -38,7 +37,6 @@ const ReportPage = () => {
           handleSubmit(e); 
         }
       } else {
-        console.error("신고 제출 실패:", error);
         alert("신고 제출에 실패했습니다. 다시 시도해 주세요.");
       }
     }

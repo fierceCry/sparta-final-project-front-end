@@ -34,13 +34,13 @@ const UserInfoPage = () => {
   };
 
   const handlePersonalInfoChange = async () => {
-    if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
-      return;
-    }
+    // if (password !== confirmPassword) {
+    //   alert("비밀번호가 일치하지 않습니다.");
+    //   return;
+    // }
 
     try {
-      await updateUserInfo({ name, email, newPassword: password, currentPasswordCheck: confirmPassword }, navigate);
+      await updateUserInfo({ name, currentPasswordCheck: password, newPassword: confirmPassword }, navigate);
       alert("개인정보가 변경되었습니다.");
       setIsModalOpen(false);
       loadUserInfo();
@@ -135,7 +135,7 @@ const UserInfoPage = () => {
           <div className="modal-content">
             <h2>개인정보 변경</h2>
             <label>
-              이름:
+              이름
               <input
                 type="text"
                 value={name}
@@ -143,15 +143,7 @@ const UserInfoPage = () => {
               />
             </label>
             <label>
-              이메일:
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </label>
-            <label>
-              비밀번호:
+              기존 비밀번호
               <input
                 type="password"
                 value={password}
@@ -159,7 +151,7 @@ const UserInfoPage = () => {
               />
             </label>
             <label>
-              비밀번호 확인:
+              새로운 비밀번호
               <input
                 type="password"
                 value={confirmPassword}
@@ -167,8 +159,8 @@ const UserInfoPage = () => {
               />
             </label>
             <div className="modal-buttons">
-              <button onClick={() => setIsModalOpen(false)}>취소</button>
               <button onClick={handlePersonalInfoChange}>확인</button>
+              <button onClick={() => setIsModalOpen(false)}>취소</button>
             </div>
           </div>
         </div>

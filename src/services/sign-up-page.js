@@ -77,7 +77,6 @@ export const handleVerificationCode = async (email, validateEmail, sendVerificat
 export const handleModalSubmit = (verificationCode, setSavedVerificationCode, setIsModalOpen) => {
   const code = verificationCode.join("");
   setSavedVerificationCode(code);
-  console.log("입력한 인증 코드:", code);
   setIsModalOpen(false);
 };
 

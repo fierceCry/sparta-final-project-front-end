@@ -130,7 +130,6 @@ const JobMatching = () => {
           JOB일
         </h1>
         <div className="header-icons">
-          <input type="text" placeholder="JOB일 검색" className="search-input" />
           <Bell onClick={() => navigate("/notifications")} />
           <Send onClick={() => navigate("/chatlist")} />
           <User onClick={() => navigate("/user")} />

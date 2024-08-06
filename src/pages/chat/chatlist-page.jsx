@@ -22,7 +22,6 @@ const ChatListPage = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response);
         setChatList(response.data.findAllChatRooms || []); 
       } catch (err) {
         if (err.response && err.response.status === 401) {
@@ -32,7 +31,6 @@ const ChatListPage = () => {
           }
         } else {
           setError("채팅 목록을 가져오는 데 실패했습니다.");
-          console.error(err);
         }
       }
     };
@@ -45,7 +43,6 @@ const ChatListPage = () => {
   };
 
   const handleReportClick = () => {
-    console.log("신고하기 클릭");
     navigate(`/report`); 
   };
 

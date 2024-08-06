@@ -29,7 +29,6 @@ const RegisterNotice = () => {
         },
       });
     
-      console.log("공지사항 등록 성공:", response.data);
       alert('공지사항 등록 성공했습니다.')
       navigate("/main");
     } catch (err) {
@@ -42,7 +41,6 @@ const RegisterNotice = () => {
         alert('관리자 권한이 필요합니다.')
       } else {
         setError("공지사항 등록에 실패했습니다.");
-        console.error(err);
       }
     }
   };

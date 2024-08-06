@@ -26,7 +26,6 @@ const Chat = () => {
   });
 
   useEffect(() => {
-    console.log(receiverId);
     socket.emit("joinRoom", { receiverId });
 
     socket.on("receiveChat", (message) => {
@@ -34,7 +33,6 @@ const Chat = () => {
     });
 
     socket.on("chatLog", (logs) => {
-      console.log(logs);
       setChatMessages(logs);
     });
     
@@ -65,7 +63,6 @@ const Chat = () => {
   }, [chatMessages]);
 
   const handleSendMessage = () => {
-    console.log(id);
     if (newMessage.trim() && !isSending) {
       const newChatMessage = {
         receiverId, 

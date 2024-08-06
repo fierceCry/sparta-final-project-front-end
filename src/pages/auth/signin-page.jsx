@@ -44,7 +44,6 @@ const LoginPage = () => {
       await signin(email, password);
       navigate("/main");
     } catch (error) {
-      console.error(error);
       setError(error.message);
     }
   };
