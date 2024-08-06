@@ -34,7 +34,6 @@ const RegisterJob = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("잡일 등록 성공:", response.data);
       navigate("/main");
     } catch (err) {
       if (err.response && err.response.status === 401) {
@@ -44,7 +43,6 @@ const RegisterJob = () => {
         }
       } else {
         setError("잡일 등록에 실패했습니다.");
-        console.error(err);
       }
     }
   };

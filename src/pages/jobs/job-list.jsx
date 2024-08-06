@@ -31,7 +31,6 @@ const JobApplications = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response);
         
         // 응답 데이터에서 Matching 배열을 가져옵니다.
         setApplications(response.data.Matching || []); 
@@ -69,10 +68,8 @@ const JobApplications = () => {
         prevApplications.filter((application) => application.id !== applicationId)
       );
 
-      console.log(`Application ${applicationId} withdrawn`);
     } catch (err) {
       setError("삭제하는 데 실패했습니다.");
-      console.error(err);
     }
   };
 

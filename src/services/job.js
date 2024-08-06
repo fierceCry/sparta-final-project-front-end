@@ -24,7 +24,6 @@ const handle401Error = async (navigate, requestFunc, ...args) => {
 export const fetchJobs = async (navigate) => {
   try {
     const response = await axios.get(`${API_URL}/api/v1/job-matching/applications`, getAuthHeaders());
-    console.log(response)
     return response.data.Matching || [];
   } catch (err) {
     if (err.response && err.response.status === 401) {
@@ -36,10 +35,8 @@ export const fetchJobs = async (navigate) => {
 
 export const acceptJob = async (jobId, navigate) => {
   try {
-    console.log(jobId)
     await axios.patch(`${API_URL}/api/v1/job-matching/accept/${jobId}`, {}, getAuthHeaders());
   } catch (err) {
-    console.log(err)
     if (err.response && err.response.status === 401) {
       return handle401Error(navigate, acceptJob, jobId, navigate);
     }

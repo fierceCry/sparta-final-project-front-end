@@ -6,7 +6,6 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('accessToken');
-  console.log(token)
   return {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -41,14 +40,13 @@ export const updateUserInfo = async (userInfo, navigate) => {
     if (err.response && err.response.status === 401) {
       return handle401Error(navigate, updateUserInfo, userInfo, navigate);
     }
-    throw new Error(err.response.data.message);
+    throw new Error('개인정보 변경 실패하였습니다.');
   }
 };
 
 export const logoutUser = async (navigate) => {
   try {
     const token = localStorage.getItem('accessToken');
-    console.log(token)
     await axios.patch(`${API_URL}/api/v1/auth/sign-out`, {}, {
       headers: {
         Authorization: `Bearer ${token}`,

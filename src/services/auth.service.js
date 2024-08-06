@@ -4,7 +4,6 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export const refreshAccessToken = async (navigate) => {
   const refreshToken = localStorage.getItem('refreshToken');
-  console.log(refreshToken)
   if (!refreshToken) {
     navigate("/sign-in");
     return null;
