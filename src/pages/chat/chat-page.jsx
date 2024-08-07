@@ -9,7 +9,7 @@ const Chat = () => {
   const navigate = useNavigate();
   const { id } = useParams(); 
   const location = useLocation();
-  const { receiverId, receiverName } = location.state || {};
+  const { receiverId } = location.state || {};
 
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");

@@ -63,9 +63,9 @@ const AlarmList = () => {
     }
   };
 
-  const handlePageChange = (direction) => {
-    setCurrentPage((prevPage) => prevPage + direction);
-  };
+  // const handlePageChange = (direction) => {
+  //   setCurrentPage((prevPage) => prevPage + direction);
+  // };
 
   // 현재 페이지에 해당하는 알림 목록을 계산
   const startIndex = (currentPage - 1) * itemsPerPage;
