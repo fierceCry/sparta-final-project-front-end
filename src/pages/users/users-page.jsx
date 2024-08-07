@@ -9,7 +9,6 @@ const UserInfoPage = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,7 +17,6 @@ const UserInfoPage = () => {
     try {
       const data = await fetchUserInfo(navigate);
       setUserInfo(data);
-      setEmail(data.email);
       setName(data.name);
     } catch (err) {
       setError(err.message);
@@ -34,11 +32,6 @@ const UserInfoPage = () => {
   };
 
   const handlePersonalInfoChange = async () => {
-    // if (password !== confirmPassword) {
-    //   alert("비밀번호가 일치하지 않습니다.");
-    //   return;
-    // }
-
     try {
       await updateUserInfo({ name, currentPasswordCheck: password, newPassword: confirmPassword }, navigate);
       alert("개인정보가 변경되었습니다.");

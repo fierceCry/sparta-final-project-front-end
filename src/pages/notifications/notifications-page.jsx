@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../../styles/notifications/notifications-page.scss";
 import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,7 +10,7 @@ const AlarmList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const fetchAndSetNotifications = async (page) => {
+  const fetchAndSetNotifications = useCallback(async (page) => {
     const token = localStorage.getItem('accessToken');
     try {
       const data = await fetchNotifications(token, navigate, page, itemsPerPage);
@@ -22,11 +22,11 @@ const AlarmList = () => {
     } catch (err) {
       console.error('알림 목록 조회에 실패하였습니다.', err);
     }
-  };
+  }, [navigate, itemsPerPage]);
 
   useEffect(() => {
     fetchAndSetNotifications(currentPage);
-  }, [currentPage]);
+  }, [fetchAndSetNotifications, currentPage]);
 
   const handleMainClick = () => {
     navigate("/main");
@@ -63,11 +63,6 @@ const AlarmList = () => {
     }
   };
 
-  // const handlePageChange = (direction) => {
-  //   setCurrentPage((prevPage) => prevPage + direction);
-  // };
-
-  // 현재 페이지에 해당하는 알림 목록을 계산
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentAlarms = alarms.slice(startIndex, startIndex + itemsPerPage);
   const totalPages = Math.ceil(alarms.length / itemsPerPage);
