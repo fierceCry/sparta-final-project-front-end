@@ -30,13 +30,13 @@ export const validatePassword = (password) => {
 
 // 소셜 로그인 핸들러 추가
 export const handleKakaoLogin = () => {
-  window.location.href = `${process.env.REACT_APP_API_URL}/auth/kakao`;
+  window.location.href = `${process.env.REACT_APP_API_URL}/api/v1/auth/kakao`;
 };
 
 export const handleNaverLogin = () => {
-  window.location.href = `${process.env.REACT_APP_API_URL}/auth/naver`;
+  window.location.href = `${process.env.REACT_APP_API_URL}/api/v1/auth/naver`;
 };
 
 export const handleGoogleLogin = () => {
-  window.location.href = `${process.env.REACT_APP_API_URL}/auth/google`;
+  window.location.href = `${process.env.REACT_APP_API_URL}/api/v1/auth/google`;
 };

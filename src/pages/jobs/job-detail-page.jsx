@@ -91,13 +91,13 @@ const JobDetailPage = () => {
                   <span className="value">{job.content}</span>
                 </div>
               </div>
-              <div className="map-container">
+              {/* <div className="map-container">
                 <img
                   src="https://example.com/path-to-map-image.jpg"
                   alt="Job location map"
                   className="map-image"
                 />
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="button-group">

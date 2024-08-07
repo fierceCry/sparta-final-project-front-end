@@ -1,19 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchJobs, fetchNotices } from '../../services/main'; // 서비스 파일 임포트
+import { fetchJobs, fetchNotices } from '../../services/main';
 import "../../styles/main/main-page.scss";
+import { useSocket } from "../../contexts/SocketContext"; // useSocket 훅 임포트
 
-const MainPage = () => {
+const MainPageContent = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
-  const [notices, setNotices] = useState([]); 
+  const [notices, setNotices] = useState([]);
   const [jobPage, setJobPage] = useState(1);
   const [noticePage, setNoticePage] = useState(1);
   const [error, setError] = useState(null);
+  const [notifications, setNotifications] = useState([]); // 알림 상태 추가
 
   const jobsPerPage = 8;
   const noticesPerPage = 2;
+
+  const socket = useSocket(); // 소켓 인스턴스 가져오기
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -42,6 +46,26 @@ const MainPage = () => {
     loadJobsAndNotices();
   }, [navigate]);
 
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNotification = (notificationData) => {
+      setNotifications((prev) => [...prev, notificationData]);
+      setTimeout(() => {
+        document.querySelector(`.notification-${notificationData.id}`).classList.add('fade-out');
+        setTimeout(() => {
+          setNotifications((prev) => prev.filter((n) => n.id !== notificationData.id));
+        }, 1000); // fadeOut 애니메이션 시간과 일치시킴
+      }, 2000); // 2초 후 알림 제거
+    };
+
+    socket.on("notification", handleNotification);
+
+    return () => {
+      socket.off("notification", handleNotification);
+    };
+  }, [socket]);
+
   const indexOfLastJob = jobPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
@@ -57,7 +81,6 @@ const MainPage = () => {
     navigate("/main");
   };
 
-  // 텍스트를 일정 길이로 제한하고 "..." 추가
   const truncateText = (text, maxLength) => {
     if (text.length > maxLength) {
       return text.slice(0, maxLength) + "...";
@@ -134,8 +157,8 @@ const MainPage = () => {
             <div className="notices-container">
               {currentNotices.map((notice) => (
                 <Link to={`/notice/${notice.id}`} key={notice.id} className="notice-content">
-                  <h3>{truncateText(notice.title, 20)}</h3> {/* 제목을 20자로 제한 */}
-                  <p>{truncateText(notice.description, 50)}</p> {/* 설명을 50자로 제한 */}
+                  <h3>{truncateText(notice.title, 20)}</h3>
+                  <p>{truncateText(notice.description, 50)}</p>
                 </Link>
               ))}
             </div>
@@ -159,8 +182,17 @@ const MainPage = () => {
           </div>
         </div>
       </main>
+
+      {/* 알림 메시지 표시 */}
+      <div className="notification-container">
+        {notifications.map((notification, index) => (
+          <div key={index} className={`notification notification-${notification.id}`}>
+            <p>{notification.title}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default MainPage;
+export default MainPageContent;
