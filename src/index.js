@@ -20,12 +20,6 @@ import RegisterNotice from "./pages/notices/notice-create-page";
 import { SocketProvider } from "./contexts/SocketContext"; // SocketProvider 임포트
 
 const AppRoutes = () => {
-  const location = useLocation();
-  const isAuthPage =
-    location.pathname === "/" ||
-    location.pathname === "/sign-in" ||
-    location.pathname === "/sign-up";
-
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
