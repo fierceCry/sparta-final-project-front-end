@@ -22,8 +22,10 @@ const ChatListPage = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log(response)
         setChatList(response.data.findAllChatRooms || []); 
       } catch (err) {
+        console.log(err)
         if (err.response && err.response.status === 401) {
           const newToken = await refreshAccessToken(navigate);
           if (newToken) {

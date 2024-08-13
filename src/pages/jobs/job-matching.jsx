@@ -23,7 +23,6 @@ const JobMatching = () => {
           const createdAt = new Date(job.createdAt);
           const date = createdAt.toLocaleDateString();
           const time = createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
           return {
             id: job.id,
             title: job.job.title,
@@ -32,9 +31,13 @@ const JobMatching = () => {
             userName: job.users.name,
             matchedYn: job.matchedYn,
             rejectedYn: job.rejectedYn,
-            customerId: job.customerId,  // customerId 추가
+            customerId: job.customerId,
           };
         });
+        
+        // formattedJobs를 여기서 출력
+        console.log(formattedJobs);
+        
         setJobs(formattedJobs);
       } catch (err) {
         setError(err.message);
@@ -42,6 +45,7 @@ const JobMatching = () => {
         setLoading(false);
       }
     };
+    
 
     loadJobs();
   }, [navigate]);

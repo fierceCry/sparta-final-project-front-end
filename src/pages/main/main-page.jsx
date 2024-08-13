@@ -55,8 +55,8 @@ const MainPageContent = () => {
         document.querySelector(`.notification-${notificationData.id}`).classList.add('fade-out');
         setTimeout(() => {
           setNotifications((prev) => prev.filter((n) => n.id !== notificationData.id));
-        }, 1000); // fadeOut 애니메이션 시간과 일치시킴
-      }, 2000); // 2초 후 알림 제거
+        }, 5000); // fadeOut 애니메이션 시간과 일치시킴
+      }, 5000); // 5초 후 알림 제거
     };
 
     socket.on("notification", handleNotification);
