@@ -18,6 +18,7 @@ import JobMatching from "./pages/jobs/job-matching";
 import JobApplications from "./pages/jobs/job-list";
 import RegisterNotice from "./pages/notices/notice-create-page";
 import { SocketProvider } from "./contexts/SocketContext"; // SocketProvider 임포트
+import CallbackPage from "./pages/auth/callback-page"; // 콜백 페이지 임포트
 
 const AppRoutes = () => {
   return (
@@ -37,9 +38,11 @@ const AppRoutes = () => {
       <Route path="/job-matching" element={<JobMatching />} />
       <Route path="/user-applications" element={<JobApplications />} />
       <Route path="/create-notice" element={<RegisterNotice />} />
+      <Route path="/api/v1/auth/google/callback" element={<CallbackPage />} /> {/* 콜백 페이지 추가 */}
     </Routes>
   );
 };
+
 
 const App = () => {
   const location = useLocation();

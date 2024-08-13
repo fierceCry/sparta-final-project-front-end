@@ -2,11 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import "../../styles/notifications/notifications-page.scss";
 import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchNotifications } from '../../services/notifications';
+import { fetchNotifications, deleteNotification, clearAllNotifications } from '../../services/notifications';
 
 const AlarmList = () => {
   const navigate = useNavigate();
-  const [alarms, setAlarms] = useState([]); // 빈 배열로 초기화
+  const [alarms, setAlarms] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
@@ -15,7 +15,7 @@ const AlarmList = () => {
     try {
       const data = await fetchNotifications(token, navigate, page, itemsPerPage);
       if (data && Array.isArray(data.data)) {
-        setAlarms(data.data); // 알림 목록을 상태에 저장
+        setAlarms(data.data);
       } else {
         console.error('알림 목록 데이터가 올바르지 않습니다.', data);
       }
@@ -39,18 +39,32 @@ const AlarmList = () => {
     setOpenDropdown(openDropdown === id ? null : id);
   };
 
-  const toggleOptions = () => {
-    setShowOptions(!showOptions);
+  const clearAllAlarms = async () => {
+    const token = localStorage.getItem('accessToken');
+    try {
+      await clearAllNotifications(token, navigate);
+      setAlarms([]); // 알림 목록 비우기
+      console.log("모든 알람이 지워졌습니다.");
+    } catch (err) {
+      console.error("모든 알람 지우기에 실패했습니다.", err);
+    }
   };
 
-  const clearAllAlarms = () => {
-    console.log("모든 알람이 지워졌습니다.");
+  const handleDeleteNotification = async (notificationId) => {
+    const token = localStorage.getItem('accessToken');
+    try {
+      await deleteNotification(token, navigate, notificationId);
+      setAlarms((prevAlarms) => prevAlarms.filter(alarm => alarm.id !== notificationId)); // 삭제된 알림 제외
+      console.log(`알람 ${notificationId}이(가) 삭제되었습니다.`);
+    } catch (err) {
+      console.error("알람 삭제에 실패했습니다.", err);
+    }
   };
 
   const getRelativeTime = (dateString) => {
     const now = new Date();
     const past = new Date(dateString);
-    const diff = Math.floor((now - past) / 1000); // 초 단위 차이
+    const diff = Math.floor((now - past) / 1000);
 
     if (diff < 60) {
       return `${diff}초 전`;
@@ -86,20 +100,20 @@ const AlarmList = () => {
         <main>
           <div className="clear-all">
             <button onClick={clearAllAlarms}>알람 전체 지우기</button>
-            <button onClick={toggleOptions}>⋮</button>
+            {/* <button onClick={toggleOptions}>⋮</button>
             {showOptions && (
               <div className="options-menu">
                 <button>알림 켜기</button>
                 <button>알림 10분간 비활성화</button>
                 <button>알림 비활성화</button>
               </div>
-            )}
+            )} */}
           </div>
-          {Array.isArray(currentAlarms) && currentAlarms.map((alarm) => ( // 배열인지 확인
+          {Array.isArray(currentAlarms) && currentAlarms.map((alarm) => (
             <div key={alarm.id} className="chat-message">
               <div className="chat-content">
                 <h3>{alarm.title}</h3>
-                <p>{alarm.senderName}</p> {/* senderName 추가 */}
+                <p>{alarm.senderName}</p>
                 <p>{getRelativeTime(alarm.createdAt)}</p>
               </div>
               <div className="dropdown">
@@ -111,7 +125,7 @@ const AlarmList = () => {
                 </button>
                 {openDropdown === alarm.id && (
                   <div className="dropdown-menu">
-                    <button>삭제</button>
+                    <button onClick={() => handleDeleteNotification(alarm.id)}>삭제</button>
                   </div>
                 )}
               </div>

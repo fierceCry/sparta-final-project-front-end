@@ -13,6 +13,147 @@ import {
   handleGoogleLogin,
 } from "../../services/sign-in-page";
 import "../../styles/auth/signin-page.scss";
+import axios from "axios"; // axios를 사용하여 API 호출
+
+const Modal = ({ isOpen, onClose }) => {
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isTempPasswordSent, setIsTempPasswordSent] = useState(false);
+
+  if (!isOpen) return null;
+
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  const handleSendTempPassword = async () => {
+    try {
+      await axios.post(`${API_URL}/api/v1/auth/email/temp-pw`, { email });
+      setSuccess("임시 비밀번호가 이메일로 전송되었습니다.");
+      setError("");
+      setIsTempPasswordSent(true);
+    } catch (err) {
+      setError("이메일 전송에 실패했습니다. 다시 시도해주세요.");
+      setSuccess("");
+    }
+  };
+
+  const handleResetPassword = async () => {
+    try {
+      await axios.post(`${API_URL}/api/v1/auth/find-pw`, {
+        email,
+        name,
+        tempPassword: newPassword,
+      });
+      setSuccess("비밀번호가 성공적으로 변경되었습니다.");
+      setError("");
+      onClose();
+    } catch (err) {
+      if(err.response.data.message === '가입되지 않은 계정입니다.'){
+        setError("가입되지 않은 계정입니다.");
+      }
+      setSuccess("");
+    }
+  };
+
+  const handleClose = () => {
+    // 상태 초기화
+    setEmail("");
+    setName("");
+    setNewPassword("");
+    setError("");
+    setSuccess("");
+    setIsTempPasswordSent(false);
+    onClose();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      if (!isTempPasswordSent) {
+        handleSendTempPassword();
+      } else {
+        handleResetPassword();
+      }
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onKeyDown={handleKeyDown}>
+      <div className="modal-content">
+        <div className="modal-header">
+          <h2>비밀번호 찾기</h2>
+          <span className="modal-close-button" onClick={handleClose}>
+            X
+          </span>
+        </div>
+
+        {success && <p className="modal-success">{success}</p>}
+        {error && <p className="modal-error">{error}</p>}
+
+        <div className="modal-input-group">
+          <label htmlFor="email" className="modal-label">
+            이메일
+          </label>
+          <input
+            id="email"
+            type="email"
+            placeholder="이메일 주소"
+            className="modal-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKeyDown} // 엔터키 이벤트 추가
+          />
+          <button className="modal-send-button" onClick={handleSendTempPassword}>
+            임시 비밀번호 전송
+          </button>
+        </div>
+
+        {isTempPasswordSent && (
+          <>
+            <div className="modal-input-group">
+              <label htmlFor="name" className="modal-label">
+                이름
+              </label>
+              <input
+                id="name"
+                type="text"
+                placeholder="이름 입력"
+                className="modal-input"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={handleKeyDown} // 엔터키 이벤트 추가
+              />
+            </div>
+            <div className="modal-input-group">
+              <label htmlFor="new-password" className="modal-label">
+                임시 비밀번호
+              </label>
+              <input
+                id="new-password"
+                type="password"
+                placeholder="새 비밀번호 입력"
+                className="modal-input"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                onKeyDown={handleKeyDown} // 엔터키 이벤트 추가
+              />
+            </div>
+
+            <div className="modal-buttons">
+              <button className="modal-send-button" onClick={handleResetPassword}>
+                비밀번호 변경
+              </button>
+              <button onClick={handleClose} className="modal-send-button">
+                취소
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -20,6 +161,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 추가
 
   const handleClickSignUp = () => {
     navigate("/sign-up");
@@ -108,10 +250,14 @@ const LoginPage = () => {
             {error && <p className="login-form__error">{error}</p>}
 
             <div className="login-form__help-buttons">
-              <button type="button" className="login-form__help-button">
+              {/* <button type="button" className="login-form__help-button">
                 아이디 찾기
-              </button>
-              <button type="button" className="login-form__help-button">
+              </button> */}
+              <button
+                type="button"
+                className="login-form__help-button"
+                onClick={() => setIsModalOpen(true)}
+              >
                 비밀번호 찾기
               </button>
             </div>
@@ -150,6 +296,9 @@ const LoginPage = () => {
           </button>
         </div>
       </div>
+
+      {/* 모달 추가 */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

@@ -31,7 +31,7 @@ const JobApplications = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+        console.log(response)
         // 응답 데이터에서 Matching 배열을 가져옵니다.
         setApplications(response.data.Matching || []); 
       } catch (err) {
