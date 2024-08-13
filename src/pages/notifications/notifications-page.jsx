@@ -33,7 +33,7 @@ const AlarmList = () => {
   };
 
   const [openDropdown, setOpenDropdown] = useState(null);
-  const [showOptions, setShowOptions] = useState(false);
+  // const [showOptions, setShowOptions] = useState(false);
 
   const toggleDropdown = (id) => {
     setOpenDropdown(openDropdown === id ? null : id);
