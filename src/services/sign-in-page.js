@@ -40,22 +40,3 @@ export const handleNaverLogin = () => {
 export const handleGoogleLogin = () => {
   window.location.href = `${API_URL}/api/v1/auth/google`;
 };
-
-// 구글 로그인 콜백 처리
-export const handleCallback = async () => {
-  try {
-    console.log(2)
-    const response = await axios.get(`${API_URL}/api/v1/auth/google/callback`);
-    const data = response.data; // axios는 자동으로 JSON으로 변환
-
-    if (data.accessToken) {
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-    } else {
-      // 오류 처리
-      console.error("토큰이 없습니다.");
-    }
-  } catch (error) {
-    console.error("콜백 처리 중 오류 발생:", error);
-  }
-};

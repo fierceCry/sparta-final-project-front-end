@@ -102,10 +102,10 @@ const RegisterJob = () => {
               required
             >
               <option value="">선택하세요</option>
-              <option value="design">디자인</option>
-              <option value="development">개발</option>
-              <option value="marketing">마케팅</option>
-              <option value="writing">글쓰기</option>
+              <option value="사무직">사무직</option>
+              <option value="현장직">현장직</option>
+              <option value="서비스직">서비스직</option>
+              <option value="기술직">기술직</option>
             </select>
           </div>
           <div className="form-group">
