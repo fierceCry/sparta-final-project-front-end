@@ -38,7 +38,8 @@ const AppRoutes = () => {
       <Route path="/job-matching" element={<JobMatching />} />
       <Route path="/user-applications" element={<JobApplications />} />
       <Route path="/create-notice" element={<RegisterNotice />} />
-      <Route path="/api/v1/auth/google/callback" element={<CallbackPage />} /> {/* 콜백 페이지 추가 */}
+      <Route path="/callback" element={<CallbackPage />} /> {/* CallbackPage */}
+      <Route path="/main" element={<CallbackPage />} /> {/* 콜백 페이지 추가 */}
     </Routes>
   );
 };

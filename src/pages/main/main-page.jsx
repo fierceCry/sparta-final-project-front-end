@@ -52,10 +52,13 @@ const MainPageContent = () => {
     const handleNotification = (notificationData) => {
       setNotifications((prev) => [...prev, notificationData]);
       setTimeout(() => {
-        document.querySelector(`.notification-${notificationData.id}`).classList.add('fade-out');
-        setTimeout(() => {
-          setNotifications((prev) => prev.filter((n) => n.id !== notificationData.id));
-        }, 5000); // fadeOut 애니메이션 시간과 일치시킴
+        const notificationElement = document.querySelector(`.notification-${notificationData.id}`);
+        if (notificationElement) {
+          notificationElement.classList.add('fade-out');
+          setTimeout(() => {
+            setNotifications((prev) => prev.filter((n) => n.id !== notificationData.id));
+          }, 5000); // fadeOut 애니메이션 시간과 일치시킴
+        }
       }, 5000); // 5초 후 알림 제거
     };
 
@@ -185,8 +188,8 @@ const MainPageContent = () => {
 
       {/* 알림 메시지 표시 */}
       <div className="notification-container">
-        {notifications.map((notification, index) => (
-          <div key={index} className={`notification notification-${notification.id}`}>
+        {notifications.map((notification) => (
+          <div key={notification.id} className={`notification notification-${notification.id}`}>
             <p>{notification.title}</p>
           </div>
         ))}
