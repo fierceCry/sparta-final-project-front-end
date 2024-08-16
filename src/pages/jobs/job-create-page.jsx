@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import "../../styles/jobs/job-create-page.scss";
-import { refreshAccessToken } from '../../services/auth.service'; 
+import { refreshAccessToken } from '../../services/auth.service';
+import { data } from '../../mock-data/job-address';
 
 const RegisterJob = () => {
   const navigate = useNavigate();
@@ -11,9 +12,37 @@ const RegisterJob = () => {
   const [jobContent, setJobContent] = useState(""); 
   const [jobPrice, setJobPrice] = useState("");
   const [jobCategory, setJobCategory] = useState("");
-  const [jobAddress, setJobAddress] = useState("");
+  const [selectedSido, setSelectedSido] = useState("");
+  const [selectedGugun, setSelectedGugun] = useState("");
+  const [selectedEupmyeondong, setSelectedEupmyeondong] = useState("");
   const [jobImage, setJobImage] = useState("");
-  const [error, setError] = useState(null); 
+  const [error, setError] = useState(null);
+  const [gugunOptions, setGugunOptions] = useState([]);
+  const [eupmyeondongOptions, setEupmyeondongOptions] = useState([]);
+
+  useEffect(() => {
+    if (selectedSido) {
+      const gugunList = [...new Set(data
+        .filter(item => item.시도명 === selectedSido && item.시군구명)
+        .map(item => item.시군구명)
+      )];
+      setGugunOptions(gugunList);
+      setSelectedGugun("");
+      setSelectedEupmyeondong("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSido]);
+
+  useEffect(() => {
+    if (selectedGugun) {
+      const eupmyeondongList = data
+        .filter(item => item.시도명 === selectedSido && item.시군구명 === selectedGugun)
+        .map(item => item.읍면동명)
+        .filter(Boolean); // 읍면동명이 비어있지 않은 항목만 필터링
+      setEupmyeondongOptions(eupmyeondongList);
+      setSelectedEupmyeondong("");
+    }
+  }, [selectedGugun, selectedSido]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +52,7 @@ const RegisterJob = () => {
       content: jobContent, 
       price: Number(jobPrice),
       category: jobCategory, 
-      address: jobAddress,
+      address: `${selectedSido} ${selectedGugun} ${selectedEupmyeondong}`,
       photoUrl: jobImage 
     };
     
@@ -47,17 +76,13 @@ const RegisterJob = () => {
     }
   };
 
-  const handleMainClick = () => {
-    navigate("/main");
-  };
-
   return (
     <div className="register-job-page">
       <header>
         <Link to="/main" className="back-button">
           <ChevronLeft />
         </Link>
-        <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
+        <h1 onClick={() => navigate("/main")} style={{ cursor: "pointer" }}>
           JOB일
         </h1>
       </header>
@@ -109,14 +134,54 @@ const RegisterJob = () => {
             </select>
           </div>
           <div className="form-group">
-            <label htmlFor="jobAddress">주소</label>
-            <input
-              type="text"
-              id="jobAddress"
-              value={jobAddress}
-              onChange={(e) => setJobAddress(e.target.value)}
+            <label htmlFor="sido">시/도</label>
+            <select
+              id="sido"
+              value={selectedSido}
+              onChange={(e) => setSelectedSido(e.target.value)}
               required
-            />
+            >
+              <option value="">선택하세요</option>
+              {[...new Set(data.map(item => item.시도명))].map((sido) => (
+                <option key={sido} value={sido}>
+                  {sido}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="gugun">구/군</label>
+            <select
+              id="gugun"
+              value={selectedGugun}
+              onChange={(e) => setSelectedGugun(e.target.value)}
+              required
+              disabled={!selectedSido}
+            >
+              <option value="">선택하세요</option>
+              {gugunOptions.map((gugun) => (
+                <option key={gugun} value={gugun}>
+                  {gugun}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="eupmyeondong">읍/면/동</label>
+            <select
+              id="eupmyeondong"
+              value={selectedEupmyeondong}
+              onChange={(e) => setSelectedEupmyeondong(e.target.value)}
+              required
+              disabled={!selectedGugun}
+            >
+              <option value="">선택하세요</option>
+              {eupmyeondongOptions.map((eupmyeondong) => (
+                <option key={eupmyeondong} value={eupmyeondong}>
+                  {eupmyeondong}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="jobImage">이미지 URL</label>

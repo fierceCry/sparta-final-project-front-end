@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Bell, Send, User, ChevronLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { fetchJobDetail, applyForJob } from '../../services/job'; // 서비스 파일 임포트
+import { fetchJobDetail, applyForJob } from "../../services/job";
 import "../../styles/jobs/job-detail-page.scss";
 
 const JobDetailPage = () => {
@@ -71,8 +71,13 @@ const JobDetailPage = () => {
             <div className="job-image-container">
               <img
                 src={job.photoUrl}
-                alt={`Job location`}
+                alt="Job location"
                 className="job-image"
+                onError={(e) => {
+                  e.target.onerror = null; // 무한 루프 방지
+                  e.target.src =
+                    "https://i.namu.wiki/i/Bbq0E9hXYyrXbL4TnIE__vtQ2QwiZ3i40NZSLiX_a6S0ftYCndVZjf4vlruWur4I3Z0o7CZuFrRMl2CKxyk30w.webp"; // 대체 이미지 URL
+                }}
               />
             </div>
             <div className="job-info">

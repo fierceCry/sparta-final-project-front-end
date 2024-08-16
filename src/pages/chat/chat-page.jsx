@@ -1,23 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Bell, User, Send } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { useSocket } from "../../contexts/SocketContext"; // useSocket 훅 임포트
+import { useSocket } from "../../contexts/SocketContext";
 import "../../styles/chat/chat-page.scss";
 import "../../styles/chat/chat-modal.scss";
+import axios from "axios";
 
 const Chat = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); 
+  const { id } = useParams();
   const location = useLocation();
   const { receiverId } = location.state || {};
 
   const [chatMessages, setChatMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
-  const [isSending, setIsSending] = useState(false); 
+  const [isSending, setIsSending] = useState(false);
   const chatContainerRef = useRef(null);
 
-  const socket = useSocket(); // 소켓 인스턴스 가져오기
+  const socket = useSocket();
 
   useEffect(() => {
     if (!socket) {
@@ -27,35 +28,28 @@ const Chat = () => {
 
     console.log("소켓 연결됨:", socket);
 
-    // 방에 참여
     socket.emit("joinRoom", { receiverId });
 
-    // 수신된 메시지 처리
     socket.on("receiveChat", (message) => {
       console.log("수신된 메시지:", message);
       setChatMessages((prevMessages) => [...prevMessages, message]);
     });
 
-    // 채팅 로그 처리
     socket.on("chatLog", (logs) => {
       console.log("채팅 로그:", logs);
       setChatMessages(logs);
     });
 
-    // 업데이트된 채팅 처리
     socket.on("chatUpdated", (updatedChat) => {
       console.log("업데이트된 채팅:", updatedChat);
       setChatMessages((prevMessages) =>
-        prevMessages.map(chat => chat.id === updatedChat.id ? updatedChat : chat)
+        prevMessages.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat))
       );
     });
 
-    // 삭제된 채팅 처리
     socket.on("chatDeleted", ({ chatId }) => {
       console.log("삭제된 채팅 ID:", chatId);
-      setChatMessages((prevMessages) =>
-        prevMessages.filter(chat => chat.id !== chatId)
-      );
+      setChatMessages((prevMessages) => prevMessages.filter((chat) => chat.id !== chatId));
     });
 
     return () => {
@@ -74,26 +68,63 @@ const Chat = () => {
 
   const handleSendMessage = () => {
     if (newMessage.trim() && !isSending) {
+      const tempId = `temp-${Date.now()}`;
       const newChatMessage = {
-        receiverId, 
+        receiverId,
         content: newMessage.trim(),
         chatRoomId: parseInt(id),
-        senderId: socket.id, // senderId 추가
+        senderId: socket.id,
+        showDeleteButton: true,
+        id: tempId,
       };
 
       setIsSending(true);
       setNewMessage("");
       console.log("보내는 메시지:", newChatMessage);
-      
-      // 메시지를 로컬 상태에 추가
+
       setChatMessages((prevMessages) => [...prevMessages, newChatMessage]);
 
-      // 메시지를 소켓으로 전송
       socket.emit("sendChat", newChatMessage);
+
+      socket.on("chatSent", (serverChatMessage) => {
+        setChatMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === tempId ? { ...msg, id: serverChatMessage.id } : msg
+          )
+        );
+      });
+
+      setTimeout(() => {
+        setChatMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg.id === tempId ? { ...msg, showDeleteButton: false } : msg
+          )
+        );
+      }, 180000);
 
       setTimeout(() => {
         setIsSending(false);
-      }, 100); 
+      }, 100);
+    }
+  };
+
+  const handleDeleteMessage = async (chatId) => {
+    try {
+      console.log(chatId);
+      const token = localStorage.getItem("accessToken");
+      const chat_rooms_id = id;
+      console.log(chat_rooms_id);
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/v1/chat-rooms/${chat_rooms_id}/chats/${chatId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setChatMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== chatId));
+    } catch (error) {
+      console.error("메시지 삭제 실패:", error);
     }
   };
 
@@ -135,12 +166,17 @@ const Chat = () => {
         <div className="chat-container" ref={chatContainerRef}>
           {chatMessages.map((chat, index) => (
             <div
-              key={chat.chatId || `temp-${index}`} // 고유한 키 값 사용
+              key={chat.id || `temp-${index}`}
               className={`chat-message ${chat.senderId === receiverId ? "received" : "sent"}`}
             >
               <div className="message-content">
                 <p>{chat.content}</p>
               </div>
+              {chat.senderId !== receiverId && chat.showDeleteButton && (
+                <div className="message-actions">
+                  <button onClick={() => handleDeleteMessage(chat.id)}>삭제</button>
+                </div>
+              )}
             </div>
           ))}
         </div>
