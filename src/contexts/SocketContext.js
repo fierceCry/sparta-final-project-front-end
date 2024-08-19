@@ -24,7 +24,15 @@ export const SocketProvider = ({ children }) => {
 
       setSocket(newSocket);
 
+      // 페이지를 떠날 때 소켓 연결 종료
+      const handleBeforeUnload = () => {
+        newSocket.disconnect();
+      };
+
+      window.addEventListener('beforeunload', handleBeforeUnload);
+
       return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
         newSocket.disconnect();
       };
     }
