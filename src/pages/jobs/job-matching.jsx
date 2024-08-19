@@ -35,9 +35,6 @@ const JobMatching = () => {
           };
         });
         
-        // formattedJobs를 여기서 출력
-        console.log(formattedJobs);
-        
         setJobs(formattedJobs);
       } catch (err) {
         setError(err.message);
@@ -103,9 +100,6 @@ const JobMatching = () => {
   const indexOfLastJob = currentPage * jobsPerPage;
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
-
-  // 페이지 변경 핸들러
-  // const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   // 총 페이지 수 계산
   const totalPages = Math.ceil(jobs.length / jobsPerPage);

@@ -38,7 +38,7 @@ const AppRoutes = () => {
       <Route path="/job-matching" element={<JobMatching />} />
       <Route path="/user-applications" element={<JobApplications />} />
       <Route path="/create-notice" element={<RegisterNotice />} />
-      <Route path="/callback" element={<CallbackPage />} />
+      <Route path="/auth/social-login" element={<CallbackPage />} />
     </Routes>
   );
 };

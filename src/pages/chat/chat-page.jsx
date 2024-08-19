@@ -22,33 +22,26 @@ const Chat = () => {
 
   useEffect(() => {
     if (!socket) {
-      console.error("소켓이 연결되지 않았습니다.");
       return;
     }
-
-    console.log("소켓 연결됨:", socket);
 
     socket.emit("joinRoom", { receiverId });
 
     socket.on("receiveChat", (message) => {
-      console.log("수신된 메시지:", message);
       setChatMessages((prevMessages) => [...prevMessages, message]);
     });
 
     socket.on("chatLog", (logs) => {
-      console.log("채팅 로그:", logs);
       setChatMessages(logs);
     });
 
     socket.on("chatUpdated", (updatedChat) => {
-      console.log("업데이트된 채팅:", updatedChat);
       setChatMessages((prevMessages) =>
         prevMessages.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat))
       );
     });
 
     socket.on("chatDeleted", ({ chatId }) => {
-      console.log("삭제된 채팅 ID:", chatId);
       setChatMessages((prevMessages) => prevMessages.filter((chat) => chat.id !== chatId));
     });
 
@@ -80,7 +73,6 @@ const Chat = () => {
 
       setIsSending(true);
       setNewMessage("");
-      console.log("보내는 메시지:", newChatMessage);
 
       setChatMessages((prevMessages) => [...prevMessages, newChatMessage]);
 
@@ -110,10 +102,8 @@ const Chat = () => {
 
   const handleDeleteMessage = async (chatId) => {
     try {
-      console.log(chatId);
       const token = localStorage.getItem("accessToken");
       const chat_rooms_id = id;
-      console.log(chat_rooms_id);
       await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/v1/chat-rooms/${chat_rooms_id}/chats/${chatId}`,
         {
@@ -124,7 +114,6 @@ const Chat = () => {
       );
       setChatMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== chatId));
     } catch (error) {
-      console.error("메시지 삭제 실패:", error);
     }
   };
 

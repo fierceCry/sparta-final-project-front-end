@@ -53,8 +53,6 @@ export const deleteNotification = async (token, navigate, notificationId) => {
           },
         });
       }
-    } else if (error.response && error.response.status === 403) {
-      console.error("권한이 없습니다.");
     }
     throw error;
   }
@@ -78,7 +76,6 @@ export const clearAllNotifications = async (token, navigate) => {
         });
       }
     } else if (error.response && error.response.status === 403) {
-      console.error("권한이 없습니다.");
     }
     throw error;
   }
