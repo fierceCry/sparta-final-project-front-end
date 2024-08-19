@@ -2,15 +2,7 @@ import axios from 'axios';
 import { refreshAccessToken } from './auth.service';
 
 const API_URL = process.env.REACT_APP_API_URL;
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('accessToken');
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
+const token = localStorage.getItem('accessToken');
 
 const handle401Error = async (navigate, requestFunc, ...args) => {
   const newToken = await refreshAccessToken(navigate);
@@ -23,7 +15,11 @@ const handle401Error = async (navigate, requestFunc, ...args) => {
 
 export const fetchJobs = async (navigate) => {
   try {
-    const response = await axios.get(`${API_URL}/api/v1/job-matching/applications`, getAuthHeaders());
+    const response = await axios.get(`${API_URL}/api/v1/job-matching/applications`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    });
     return response.data.Matching || [];
   } catch (err) {
     if (err.response && err.response.status === 401) {
@@ -35,7 +31,11 @@ export const fetchJobs = async (navigate) => {
 
 export const acceptJob = async (jobId, navigate) => {
   try {
-    await axios.patch(`${API_URL}/api/v1/job-matching/accept/${jobId}`, {}, getAuthHeaders());
+    await axios.patch(`${API_URL}/api/v1/job-matching/accept/${jobId}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    });
   } catch (err) {
     if (err.response && err.response.status === 401) {
       return handle401Error(navigate, acceptJob, jobId, navigate);
@@ -46,7 +46,11 @@ export const acceptJob = async (jobId, navigate) => {
 
 export const rejectJob = async (jobId, navigate) => {
   try {
-    await axios.patch(`${API_URL}/api/v1/job-matching/reject/${jobId}`, {}, getAuthHeaders());
+    await axios.patch(`${API_URL}/api/v1/job-matching/reject/${jobId}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    });
   } catch (err) {
     if (err.response && err.response.status === 401) {
       return handle401Error(navigate, rejectJob, jobId, navigate);
@@ -83,6 +87,7 @@ export const applyForJob = async (id, navigate) => {
         Authorization: `Bearer ${token}`
       }
     });
+    console.log(1)
     return true; // 지원 성공
   } catch (err) {
     if (err.response && err.response.status === 401) {

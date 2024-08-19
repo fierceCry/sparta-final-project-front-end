@@ -43,7 +43,6 @@ const JobMatching = () => {
       }
     };
     
-
     loadJobs();
   }, [navigate]);
 
