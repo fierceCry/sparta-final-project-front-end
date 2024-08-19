@@ -1,26 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchJobs, fetchNotices } from '../../services/main';
+import { fetchJobs, fetchNotices } from "../../services/main";
 import "../../styles/main/main-page.scss";
 import { useSocket } from "../../contexts/SocketContext"; // useSocket 훅 임포트
 
 const MainPageContent = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
+  const [paginatedJobs, setPaginatedJobs] = useState([]); // 페이지네이션된 잡일 상태
   const [notices, setNotices] = useState([]);
   const [noticePage, setNoticePage] = useState(1);
+  const [jobPage, setJobPage] = useState(1); // 잡일 페이지 상태
   const [error, setError] = useState(null);
   const [notifications, setNotifications] = useState([]); // 알림 상태 추가
   const [totalNoticePages, setTotalNoticePages] = useState(1); // 전체 공지사항 페이지 수 상태
+  const [totalJobPages, setTotalJobPages] = useState(1); // 전체 잡일 페이지 수 상태
 
   const noticesPerPage = 2;
+  const jobsPerPage = 8; // 잡일 페이지 당 항목 수
 
   const socket = useSocket(); // 소켓 인스턴스 가져오기
 
+  // 잡일 데이터 로드 및 페이지네이션
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    
+    const token = localStorage.getItem("accessToken");
+
     if (!token) {
       navigate("/sign-in");
       return;
@@ -28,8 +33,9 @@ const MainPageContent = () => {
 
     const loadJobs = async () => {
       try {
-        const jobsData = await fetchJobs(token, navigate);
-        setJobs(jobsData);
+        const allJobs = await fetchJobs(token, navigate);
+        setJobs(allJobs);
+        setTotalJobPages(Math.ceil(allJobs.length / jobsPerPage)); // 전체 페이지 수 계산
       } catch (err) {
         setError(err.message);
       }
@@ -38,9 +44,17 @@ const MainPageContent = () => {
     loadJobs();
   }, [navigate]);
 
+  // 페이지네이션된 잡일 데이터 계산
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    
+    const startIndex = (jobPage - 1) * jobsPerPage;
+    const endIndex = startIndex + jobsPerPage;
+    setPaginatedJobs(jobs.slice(startIndex, endIndex));
+  }, [jobs, jobPage]);
+
+  // 공지사항 데이터 로드
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+
     if (!token) {
       navigate("/sign-in");
       return;
@@ -59,6 +73,7 @@ const MainPageContent = () => {
     loadNotices();
   }, [noticePage, navigate]);
 
+  // 알림 핸들링
   useEffect(() => {
     if (!socket) return;
 
@@ -67,7 +82,7 @@ const MainPageContent = () => {
       setTimeout(() => {
         const notificationElement = document.querySelector(`.notification-${notificationData.id}`);
         if (notificationElement) {
-          notificationElement.classList.add('fade-out');
+          notificationElement.classList.add("fade-out");
           setTimeout(() => {
             setNotifications((prev) => prev.filter((n) => n.id !== notificationData.id));
           }, 5000); // fadeOut 애니메이션 시간과 일치시킴
@@ -82,10 +97,18 @@ const MainPageContent = () => {
     };
   }, [socket]);
 
-  const handleMainClick = () => {
-    navigate("/main");
+  // 페이지 변경 핸들러
+  const handlePageChange = (newPage, type) => {
+    if (type === "notice") {
+      if (newPage < 1 || newPage > totalNoticePages) return;
+      setNoticePage(newPage);
+    } else if (type === "job") {
+      if (newPage < 1 || newPage > totalJobPages) return;
+      setJobPage(newPage);
+    }
   };
 
+  // 텍스트 자르기 함수
   const truncateText = (text, maxLength) => {
     if (text.length > maxLength) {
       return text.slice(0, maxLength) + "...";
@@ -93,15 +116,10 @@ const MainPageContent = () => {
     return text;
   };
 
-  const handlePageChange = (newPage) => {
-    if (newPage < 1 || newPage > totalNoticePages) return;
-    setNoticePage(newPage);
-  };
-
   return (
     <div className="main-page">
       <header>
-        <h1 onClick={handleMainClick} style={{ cursor: "pointer" }}>
+        <h1 onClick={() => navigate("/main")} style={{ cursor: "pointer" }}>
           JOB일
         </h1>
         <div className="header-icons">
@@ -125,8 +143,8 @@ const MainPageContent = () => {
               </Link>
             </div>
             <div className="alarm-grid">
-              {jobs.length > 0 ? (
-                jobs.map((job) => (
+              {paginatedJobs.length > 0 ? (
+                paginatedJobs.map((job) => (
                   <Link to={`/job/${job.id}`} key={job.id} className="alarm-card">
                     <div className="card-content">
                       <h3>{job.title}</h3>
@@ -137,6 +155,20 @@ const MainPageContent = () => {
               ) : (
                 <p>잡일이 없습니다.</p>
               )}
+            </div>
+            <div className="pagination">
+              <button onClick={() => handlePageChange(jobPage - 1, "job")} disabled={jobPage === 1}>
+                <ChevronLeft />
+              </button>
+              <span>
+                {jobPage} / {totalJobPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(jobPage + 1, "job")}
+                disabled={jobPage === totalJobPages}
+              >
+                <ChevronRight />
+              </button>
             </div>
           </div>
           <div className="notice-board">
@@ -160,7 +192,7 @@ const MainPageContent = () => {
             </div>
             <div className="pagination">
               <button
-                onClick={() => handlePageChange(noticePage - 1)}
+                onClick={() => handlePageChange(noticePage - 1, "notice")}
                 disabled={noticePage === 1}
               >
                 <ChevronLeft />
@@ -169,7 +201,7 @@ const MainPageContent = () => {
                 {noticePage} / {totalNoticePages}
               </span>
               <button
-                onClick={() => handlePageChange(noticePage + 1)}
+                onClick={() => handlePageChange(noticePage + 1, "notice")}
                 disabled={noticePage === totalNoticePages}
               >
                 <ChevronRight />
