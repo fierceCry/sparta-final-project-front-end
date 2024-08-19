@@ -11,17 +11,16 @@ const CallbackPage = () => {
 
       // 현재 URL에서 토큰 추출
       const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      console.log(code)
+      const authCode = urlParams.get('code');
+      console.log(authCode)
       try {
-        const response = await axios.post(`${API_URL}/api/v1/auth/code/token`, {
-          code
-        });
+        const response = await axios.get(`${API_URL}/api/v1/auth/auth-code/${encodeURIComponent(authCode)}`);
 
+        console.log(response.data[0])
+        console.log(response.data[1])
         if (response) {
-          const { accessToken, refreshToken } = response.data;
-          localStorage.setItem("accessToken", accessToken);
-          localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("accessToken", response.data[0]);
+          localStorage.setItem("refreshToken", response.data[1]);
           navigate('/main'); // 성공적으로 토큰을 저장한 후 리다이렉트
         }
       } catch (error) {

@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import btnKakao from "../../data/btn_kakao.svg";
-import btnNaver from "../../data/btn_naver.svg";
+// import btnKakao from "../../data/btn_kakao.svg";
+// import btnNaver from "../../data/btn_naver.svg";
 import btnGoogle from "../../data/btn_google.svg";
 import {
   signin,
   validateEmail,
   validatePassword,
-  handleKakaoLogin,
-  handleNaverLogin,
+  // handleKakaoLogin,
+  // handleNaverLogin,
   handleGoogleLogin,
 } from "../../services/sign-in-page";
 import "../../styles/auth/signin-page.scss";
@@ -263,7 +263,7 @@ const LoginPage = () => {
             </div>
 
             <div className="login-form__social-login">
-              <button
+              {/* <button
                 type="button"
                 onClick={handleKakaoLogin}
                 className="login-form__social-button"
@@ -276,7 +276,7 @@ const LoginPage = () => {
                 className="login-form__social-button"
               >
                 <img src={btnNaver} alt="네이버 로그인 버튼" />
-              </button>
+              </button> */}
               <button
                 type="button"
                 onClick={handleGoogleLogin}

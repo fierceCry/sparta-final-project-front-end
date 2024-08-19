@@ -11,13 +11,15 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    const REACT_APP_API_URL = process.env.REACT_APP_SOCKET_URL;
+    const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
 
     if (token) {
       const newSocket = io(REACT_APP_API_URL, {
         auth: {
           token: `Bearer ${token}`,
         },
+        transports: ['websocket', 'polling'], // 웹소켓과 폴링 전송 방식 사용
+        withCredentials: true, // 쿠키와 인증 정보 포함
       });
 
       setSocket(newSocket);
