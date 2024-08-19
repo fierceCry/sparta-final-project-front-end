@@ -46,7 +46,7 @@ const ChatMessage = ({ sender, message, lastMessageTime, onReport, onClick }) =>
         {isDropdownOpen && (
           <div className="dropdown-menu">
             <button onClick={handleReportClick}>신고하기</button>
-            <button onClick={() => setIsDropdownOpen(false)}>나가기</button>
+            {/* <button onClick={() => setIsDropdownOpen(false)}>나가기</button> */}
             <button>블랙리스트</button>
           </div>
         )}

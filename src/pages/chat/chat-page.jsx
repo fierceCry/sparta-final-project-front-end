@@ -1,10 +1,10 @@
+// src/pages/Chat.js
 import React, { useState, useEffect, useRef } from "react";
 import { Bell, User, Send } from "lucide-react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useSocket } from "../../contexts/SocketContext";
 import "../../styles/chat/chat-page.scss";
 import "../../styles/chat/chat-modal.scss";
-import axios from "axios";
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -100,21 +100,14 @@ const Chat = () => {
     }
   };
 
-  const handleDeleteMessage = async (chatId) => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      const chat_rooms_id = id;
-      await axios.delete(
-        `${process.env.REACT_APP_API_URL}/api/v1/chat-rooms/${chat_rooms_id}/chats/${chatId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setChatMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== chatId));
-    } catch (error) {
-    }
+  const handleDeleteMessage = (chatId) => {
+    if (!socket) return;
+
+    const chatRoomId = id; // 현재 채팅방 ID
+    socket.emit("deleteChat", { chatRoomId, chatId });
+
+    // 클라이언트 측에서 삭제된 메시지를 즉시 제거
+    setChatMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== chatId));
   };
 
   const handleKeyDown = (e) => {
