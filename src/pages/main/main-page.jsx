@@ -3,26 +3,25 @@ import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchJobs, fetchNotices } from "../../services/main";
 import "../../styles/main/main-page.scss";
-import { useSocket } from "../../contexts/SocketContext"; // useSocket 훅 임포트
+import { useSocket } from "../../contexts/SocketContext";
 
 const MainPageContent = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
-  const [paginatedJobs, setPaginatedJobs] = useState([]); // 페이지네이션된 잡일 상태
+  const [paginatedJobs, setPaginatedJobs] = useState([]);
   const [notices, setNotices] = useState([]);
   const [noticePage, setNoticePage] = useState(1);
-  const [jobPage, setJobPage] = useState(1); // 잡일 페이지 상태
+  const [jobPage, setJobPage] = useState(1);
   const [error, setError] = useState(null);
-  const [notifications, setNotifications] = useState([]); // 알림 상태 추가
-  const [totalNoticePages, setTotalNoticePages] = useState(1); // 전체 공지사항 페이지 수 상태
-  const [totalJobPages, setTotalJobPages] = useState(1); // 전체 잡일 페이지 수 상태
+  const [notifications, setNotifications] = useState([]);
+  const [totalNoticePages, setTotalNoticePages] = useState(1);
+  const [totalJobPages, setTotalJobPages] = useState(1);
 
   const noticesPerPage = 2;
-  const jobsPerPage = 8; // 잡일 페이지 당 항목 수
+  const jobsPerPage = 8;
 
-  const socket = useSocket(); // 소켓 인스턴스 가져오기
+  const socket = useSocket();
 
-  // 잡일 데이터 로드 및 페이지네이션
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
@@ -35,23 +34,21 @@ const MainPageContent = () => {
       try {
         const allJobs = await fetchJobs(token, navigate);
         setJobs(allJobs);
-        setTotalJobPages(Math.ceil(allJobs.length / jobsPerPage)); // 전체 페이지 수 계산
+        setTotalJobPages(Math.ceil(allJobs.length / jobsPerPage));
       } catch (err) {
-        setError(err.message);
+        setError("잡일을 불러오는 중 오류가 발생했습니다."); // 사용자에게 친숙한 메시지
       }
     };
 
     loadJobs();
   }, [navigate]);
 
-  // 페이지네이션된 잡일 데이터 계산
   useEffect(() => {
     const startIndex = (jobPage - 1) * jobsPerPage;
     const endIndex = startIndex + jobsPerPage;
     setPaginatedJobs(jobs.slice(startIndex, endIndex));
   }, [jobs, jobPage]);
 
-  // 공지사항 데이터 로드
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
@@ -64,16 +61,15 @@ const MainPageContent = () => {
       try {
         const { data, meta } = await fetchNotices(token, navigate, noticePage, noticesPerPage);
         setNotices(data);
-        setTotalNoticePages(meta.totalPages); // 전체 페이지 수 설정
+        setTotalNoticePages(meta.totalPages);
       } catch (err) {
-        setError(err.message);
+        // setError("공지사항을 불러오는 중 오류가 발생했습니다."); // 사용자에게 친숙한 메시지
       }
     };
 
     loadNotices();
   }, [noticePage, navigate]);
 
-  // 알림 핸들링
   useEffect(() => {
     if (!socket) return;
 
@@ -85,9 +81,9 @@ const MainPageContent = () => {
           notificationElement.classList.add("fade-out");
           setTimeout(() => {
             setNotifications((prev) => prev.filter((n) => n.id !== notificationData.id));
-          }, 5000); // fadeOut 애니메이션 시간과 일치시킴
+          }, 5000);
         }
-      }, 5000); // 5초 후 알림 제거
+      }, 5000);
     };
 
     socket.on("notification", handleNotification);
@@ -97,7 +93,6 @@ const MainPageContent = () => {
     };
   }, [socket]);
 
-  // 페이지 변경 핸들러
   const handlePageChange = (newPage, type) => {
     if (type === "notice") {
       if (newPage < 1 || newPage > totalNoticePages) return;
@@ -108,7 +103,6 @@ const MainPageContent = () => {
     }
   };
 
-  // 텍스트 자르기 함수
   const truncateText = (text, maxLength) => {
     if (text.length > maxLength) {
       return text.slice(0, maxLength) + "...";
@@ -131,6 +125,7 @@ const MainPageContent = () => {
 
       <main>
         <div className="content-container">
+          {/* 에러 메시지 조건부 렌더링 */}
           {error && <p className="error-message">{error}</p>}
           <div className="job-list">
             <div className="job-list-header">
@@ -211,7 +206,6 @@ const MainPageContent = () => {
         </div>
       </main>
 
-      {/* 알림 메시지 표시 */}
       <div className="notification-container">
         {notifications.map((notification) => (
           <div key={notification.id} className={`notification notification-${notification.id}`}>
