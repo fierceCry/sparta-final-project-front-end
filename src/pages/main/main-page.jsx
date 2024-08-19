@@ -9,12 +9,11 @@ const MainPageContent = () => {
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
   const [notices, setNotices] = useState([]);
-  const [jobPage, setJobPage] = useState(1);
   const [noticePage, setNoticePage] = useState(1);
   const [error, setError] = useState(null);
   const [notifications, setNotifications] = useState([]); // 알림 상태 추가
+  const [totalNoticePages, setTotalNoticePages] = useState(1); // 전체 공지사항 페이지 수 상태
 
-  const jobsPerPage = 8;
   const noticesPerPage = 2;
 
   const socket = useSocket(); // 소켓 인스턴스 가져오기
@@ -27,24 +26,38 @@ const MainPageContent = () => {
       return;
     }
 
-    const loadJobsAndNotices = async () => {
+    const loadJobs = async () => {
       try {
         const jobsData = await fetchJobs(token, navigate);
         setJobs(jobsData);
       } catch (err) {
         setError(err.message);
       }
+    };
 
+    loadJobs();
+  }, [navigate]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    
+    if (!token) {
+      navigate("/sign-in");
+      return;
+    }
+
+    const loadNotices = async () => {
       try {
-        const noticesData = await fetchNotices(token, navigate);
-        setNotices(noticesData);
+        const { data, meta } = await fetchNotices(token, navigate, noticePage, noticesPerPage);
+        setNotices(data);
+        setTotalNoticePages(meta.totalPages); // 전체 페이지 수 설정
       } catch (err) {
         setError(err.message);
       }
     };
 
-    loadJobsAndNotices();
-  }, [navigate]);
+    loadNotices();
+  }, [noticePage, navigate]);
 
   useEffect(() => {
     if (!socket) return;
@@ -69,17 +82,6 @@ const MainPageContent = () => {
     };
   }, [socket]);
 
-  const indexOfLastJob = jobPage * jobsPerPage;
-  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
-  const currentJobs = jobs.slice(indexOfFirstJob, indexOfLastJob);
-
-  const indexOfLastNotice = noticePage * noticesPerPage;
-  const indexOfFirstNotice = indexOfLastNotice - noticesPerPage;
-  const currentNotices = notices.slice(indexOfFirstNotice, indexOfLastNotice);
-
-  const totalJobPages = Math.ceil(jobs.length / jobsPerPage);
-  const totalNoticePages = Math.ceil(notices.length / noticesPerPage);
-
   const handleMainClick = () => {
     navigate("/main");
   };
@@ -91,6 +93,11 @@ const MainPageContent = () => {
     return text;
   };
 
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalNoticePages) return;
+    setNoticePage(newPage);
+  };
+
   return (
     <div className="main-page">
       <header>
@@ -98,7 +105,6 @@ const MainPageContent = () => {
           JOB일
         </h1>
         <div className="header-icons">
-          {/* <input type="text" placeholder="JOB일 검색" className="search-input" /> */}
           <Bell onClick={() => navigate("/notifications")} />
           <Send onClick={() => navigate("/chatlist")} />
           <User onClick={() => navigate("/user")} />
@@ -119,8 +125,8 @@ const MainPageContent = () => {
               </Link>
             </div>
             <div className="alarm-grid">
-              {currentJobs.length > 0 ? (
-                currentJobs.map((job) => (
+              {jobs.length > 0 ? (
+                jobs.map((job) => (
                   <Link to={`/job/${job.id}`} key={job.id} className="alarm-card">
                     <div className="card-content">
                       <h3>{job.title}</h3>
@@ -132,23 +138,6 @@ const MainPageContent = () => {
                 <p>잡일이 없습니다.</p>
               )}
             </div>
-            <div className="pagination">
-              <button
-                onClick={() => setJobPage((prev) => Math.max(prev - 1, 1))}
-                disabled={jobPage === 1}
-              >
-                <ChevronLeft />
-              </button>
-              <span>
-                {jobPage} / {totalJobPages}
-              </span>
-              <button
-                onClick={() => setJobPage((prev) => Math.min(prev + 1, totalJobPages))}
-                disabled={jobPage === totalJobPages}
-              >
-                <ChevronRight />
-              </button>
-            </div>
           </div>
           <div className="notice-board">
             <div className="notice-board-header">
@@ -158,16 +147,20 @@ const MainPageContent = () => {
               </Link>
             </div>
             <div className="notices-container">
-              {currentNotices.map((notice) => (
-                <Link to={`/notice/${notice.id}`} key={notice.id} className="notice-content">
-                  <h3>{truncateText(notice.title, 20)}</h3>
-                  <p>{truncateText(notice.description, 50)}</p>
-                </Link>
-              ))}
+              {notices.length > 0 ? (
+                notices.map((notice) => (
+                  <Link to={`/notice/${notice.id}`} key={notice.id} className="notice-content">
+                    <h3>{truncateText(notice.title, 20)}</h3>
+                    <p>{truncateText(notice.description, 50)}</p>
+                  </Link>
+                ))
+              ) : (
+                <p>공지사항이 없습니다.</p>
+              )}
             </div>
             <div className="pagination">
               <button
-                onClick={() => setNoticePage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => handlePageChange(noticePage - 1)}
                 disabled={noticePage === 1}
               >
                 <ChevronLeft />
@@ -176,7 +169,7 @@ const MainPageContent = () => {
                 {noticePage} / {totalNoticePages}
               </span>
               <button
-                onClick={() => setNoticePage((prev) => Math.min(prev + 1, totalNoticePages))}
+                onClick={() => handlePageChange(noticePage + 1)}
                 disabled={noticePage === totalNoticePages}
               >
                 <ChevronRight />

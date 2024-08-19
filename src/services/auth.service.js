@@ -19,7 +19,6 @@ export const refreshAccessToken = async (navigate) => {
     localStorage.setItem('accessToken', newAccessToken);
     return newAccessToken;
   } catch (error) {
-    console.error("리프레시 토큰으로 액세스 토큰 재발급 실패:", error);
     navigate("/sign-in");
     return null;
   }

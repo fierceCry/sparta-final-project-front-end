@@ -16,11 +16,8 @@ const AlarmList = () => {
       const data = await fetchNotifications(token, navigate, page, itemsPerPage);
       if (data && Array.isArray(data.data)) {
         setAlarms(data.data);
-      } else {
-        console.error('알림 목록 데이터가 올바르지 않습니다.', data);
       }
     } catch (err) {
-      console.error('알림 목록 조회에 실패하였습니다.', err);
     }
   }, [navigate, itemsPerPage]);
 
@@ -44,9 +41,7 @@ const AlarmList = () => {
     try {
       await clearAllNotifications(token, navigate);
       setAlarms([]); // 알림 목록 비우기
-      console.log("모든 알람이 지워졌습니다.");
     } catch (err) {
-      console.error("모든 알람 지우기에 실패했습니다.", err);
     }
   };
 
@@ -55,9 +50,7 @@ const AlarmList = () => {
     try {
       await deleteNotification(token, navigate, notificationId);
       setAlarms((prevAlarms) => prevAlarms.filter(alarm => alarm.id !== notificationId)); // 삭제된 알림 제외
-      console.log(`알람 ${notificationId}이(가) 삭제되었습니다.`);
     } catch (err) {
-      console.error("알람 삭제에 실패했습니다.", err);
     }
   };
 
