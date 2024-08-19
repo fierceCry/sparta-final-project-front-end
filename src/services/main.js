@@ -39,6 +39,6 @@ export const fetchNotices = async (token, navigate, page, limit) => {
         return fetchNotices(newToken, navigate, page, limit); // 새 토큰으로 다시 요청
       }
     }
-    throw new Error("공지사항 목록을 가져오는 데 실패했습니다.");
+    // throw new Error("공지사항 목록을 가져오는 데 실패했습니다.");
   }
 };
