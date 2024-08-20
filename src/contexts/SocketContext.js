@@ -1,6 +1,8 @@
 // src/contexts/SocketContext.js
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import { useNavigate } from 'react-router-dom'; // react-router-dom v6 사용 시
+import { refreshAccessToken } from '../services/auth.service'; // auth.js에서 함수 가져오기
 
 const SocketContext = createContext();
 
@@ -8,23 +10,37 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
+  const navigate = useNavigate(); // navigate hook 사용
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
+    const connectSocket = async () => {
+      let token = localStorage.getItem("accessToken");
 
-    if (token) {
-      const newSocket = io(REACT_APP_API_URL, {
+      if (!token) {
+        token = await refreshAccessToken(navigate);
+        if (!token) return;
+      }
+
+      const newSocket = io(process.env.REACT_APP_API_URL, {
         auth: {
           token: `Bearer ${token}`,
         },
-        transports: ['websocket', 'polling'], // 웹소켓과 폴링 전송 방식 사용
-        withCredentials: true, // 쿠키와 인증 정보 포함
+        transports: ['websocket', 'polling'],
+        withCredentials: true,
+      });
+
+      newSocket.on("connect_error", async (err) => {
+        if (err.message === "Unauthorized") {
+          token = await refreshAccessToken(navigate);
+          if (token) {
+            newSocket.auth.token = `Bearer ${token}`;
+            newSocket.connect();
+          }
+        }
       });
 
       setSocket(newSocket);
 
-      // 페이지를 떠날 때 소켓 연결 종료
       const handleBeforeUnload = () => {
         newSocket.disconnect();
       };
@@ -35,8 +51,10 @@ export const SocketProvider = ({ children }) => {
         window.removeEventListener('beforeunload', handleBeforeUnload);
         newSocket.disconnect();
       };
-    }
-  }, []);
+    };
+
+    connectSocket();
+  }, [navigate]);
 
   return (
     <SocketContext.Provider value={socket}>

@@ -31,6 +31,7 @@ const JobApplications = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log(response)
         setApplications(response.data.Matching || []); 
       } catch (err) {
         if (err.response && err.response.status === 401) {

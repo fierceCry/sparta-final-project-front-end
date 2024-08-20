@@ -19,16 +19,23 @@ const JobMatching = () => {
       setLoading(true);
       try {
         const jobList = await fetchJobs(navigate);
+        console.log(jobList);
+        // 값이 없거나 예상과 다른 경우 처리
         const formattedJobs = jobList.map((job) => {
+          console.log(job.id);
           const createdAt = new Date(job.createdAt);
           const date = createdAt.toLocaleDateString();
           const time = createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+          
+          // job.users가 null이 아닌지 확인
+          const userName = job.users ? job.users.name : "알 수 없음"; 
+          
           return {
             id: job.id,
             title: job.job.title,
             date,
             time,
-            userName: job.users.name,
+            userName,
             matchedYn: job.matchedYn,
             rejectedYn: job.rejectedYn,
             customerId: job.customerId,

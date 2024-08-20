@@ -12,12 +12,8 @@ const CallbackPage = () => {
       // 현재 URL에서 토큰 추출
       const urlParams = new URLSearchParams(window.location.search);
       const authCode = urlParams.get('code');
-      console.log(authCode)
       try {
         const response = await axios.get(`${API_URL}/api/v1/auth/auth-code/${encodeURIComponent(authCode)}`);
-
-        console.log(response.data[0])
-        console.log(response.data[1])
         if (response) {
           localStorage.setItem("accessToken", response.data[0]);
           localStorage.setItem("refreshToken", response.data[1]);

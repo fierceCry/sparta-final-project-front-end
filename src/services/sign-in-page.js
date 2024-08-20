@@ -8,13 +8,14 @@ export const signin = async (email, password) => {
       email,
       password,
     });
-
+    console.log(response)
     const { accessToken, refreshToken } = response.data;
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
 
     return response.data; // 반환값을 추가하여 처리할 수 있게 함
   } catch (error) {
+    console.log(error)
     throw new Error("아이디와 비밀번호를 확인하세요.");
   }
 };

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, Bell, Send, User } from "lucide-react";
 import axios from 'axios';
 import "../../styles/reports/report-page.scss";
@@ -7,21 +7,24 @@ import { ReportReason } from "../../components/report-enum";
 import { refreshAccessToken } from '../../services/auth.service'; 
 
 const ReportPage = () => {
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // location.state에서 ownerId 추출
+  const { ownerId } = location.state || {};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       let token = localStorage.getItem('accessToken');
-
       await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/reports`, {
-        email,
         reason,
         description: details,
+        ownerId, // ownerId를 요청에 포함
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -65,7 +68,7 @@ const ReportPage = () => {
       </header>
       <main className="report-page__main">
         <form className="report-page__form" onSubmit={handleSubmit}>
-          <div className="report-page__form-group">
+          {/* <div className="report-page__form-group">
             <label htmlFor="email">신고 대상자 이메일</label>
             <input
               type="email"
@@ -75,7 +78,7 @@ const ReportPage = () => {
               placeholder="신고할 사용자의 이메일을 입력하세요"
               required
             />
-          </div>
+          </div> */}
           <div className="report-page__form-group">
             <label htmlFor="reason">신고 사유</label>
             <select id="reason" value={reason} onChange={(e) => setReason(e.target.value)} required>

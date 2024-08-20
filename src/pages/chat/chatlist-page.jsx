@@ -42,8 +42,8 @@ const ChatListPage = () => {
     navigate("/main");
   };
 
-  const handleReportClick = () => {
-    navigate(`/report`); 
+  const handleReportClick = (ownerId) => {
+    navigate(`/report`, { state: { ownerId } }); 
   };
 
   const handleChatClick = (roomId, receiverId, receiverName) => {
@@ -87,7 +87,7 @@ const ChatListPage = () => {
                 sender={receiverName}
                 message={lastMessage}
                 lastMessageTime={lastMessageTime ? new Date(lastMessageTime).toLocaleString() : new Date().toLocaleString()}
-                onReport={handleReportClick} 
+                onReport={() => handleReportClick(receiverId)} // receiverId를 ownerId로 사용
                 onClick={() => handleChatClick(roomId, receiverId, receiverName)}
               />
             ))
