@@ -137,7 +137,7 @@ const Chat = () => {
           JOB일
         </h1>
         <div className="header-icons">
-          <input type="text" className="search-input" placeholder="검색..." />
+          {/* <input type="text" className="search-input" placeholder="검색..." /> */}
           <Bell onClick={() => navigate("/notifications")} />
           <Send onClick={() => navigate("/chatlist")} />
           <User onClick={() => navigate("/user")} />

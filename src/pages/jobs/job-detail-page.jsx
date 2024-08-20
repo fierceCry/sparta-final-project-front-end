@@ -41,7 +41,11 @@ const JobDetailPage = () => {
   }
 
   const handleReport = () => {
-    navigate("/report");
+    if (job.ownerId) {
+      navigate("/report", { state: { ownerId: job.ownerId } });
+    } else {
+      alert("소유자 ID가 없습니다.");
+    }
   };
 
   const handleMainClick = () => {
@@ -96,13 +100,6 @@ const JobDetailPage = () => {
                   <span className="value">{job.content}</span>
                 </div>
               </div>
-              {/* <div className="map-container">
-                <img
-                  src="https://example.com/path-to-map-image.jpg"
-                  alt="Job location map"
-                  className="map-image"
-                />
-              </div> */}
             </div>
           </div>
           <div className="button-group">

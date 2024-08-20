@@ -63,7 +63,7 @@ const MainPageContent = () => {
         setNotices(data);
         setTotalNoticePages(meta.totalPages);
       } catch (err) {
-        // setError("공지사항을 불러오는 중 오류가 발생했습니다."); // 사용자에게 친숙한 메시지
+        setError("공지사항을 불러오는 중 오류가 발생했습니다."); // 사용자에게 친숙한 메시지
       }
     };
 
@@ -72,8 +72,9 @@ const MainPageContent = () => {
 
   useEffect(() => {
     if (!socket) return;
-
+  
     const handleNotification = (notificationData) => {
+      console.log(notificationData);
       setNotifications((prev) => [...prev, notificationData]);
       setTimeout(() => {
         const notificationElement = document.querySelector(`.notification-${notificationData.id}`);
@@ -85,13 +86,20 @@ const MainPageContent = () => {
         }
       }, 5000);
     };
-
+  
     socket.on("notification", handleNotification);
-
+  
+    // 에러 핸들링 추가
+    socket.on("connect_error", (err) => {
+      console.error("WebSocket connection error:", err);
+    });
+  
     return () => {
       socket.off("notification", handleNotification);
+      socket.off("connect_error");
     };
   }, [socket]);
+  
 
   const handlePageChange = (newPage, type) => {
     if (type === "notice") {
