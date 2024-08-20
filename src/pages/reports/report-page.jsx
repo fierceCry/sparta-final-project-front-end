@@ -18,26 +18,45 @@ const ReportPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       let token = localStorage.getItem('accessToken');
       await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/reports`, {
         reason,
         description: details,
-        ownerId, // ownerId를 요청에 포함
+        ownerId,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       alert("신고가 제출되었습니다.");
       navigate("/main");
     } catch (error) {
       if (error.response && error.response.status === 401) {
         const newToken = await refreshAccessToken(navigate);
         if (newToken) {
-          handleSubmit(e); 
+          localStorage.setItem('accessToken', newToken); // 새로운 토큰을 저장
+          // 재시도 전에 e.preventDefault()를 호출하지 않도록 주의
+          try {
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/reports`, {
+              reason,
+              description: details,
+              ownerId,
+            }, {
+              headers: {
+                Authorization: `Bearer ${newToken}`,
+              },
+            });
+            alert("신고가 제출되었습니다.");
+            navigate("/main");
+          } catch (retryError) {
+            alert("신고 제출에 실패했습니다. 다시 시도해 주세요.");
+          }
+        } else {
+          alert("로그인이 필요합니다. 다시 시도해 주세요.");
+          navigate("/main");
         }
       } else {
         alert("신고 제출에 실패했습니다. 다시 시도해 주세요.");
