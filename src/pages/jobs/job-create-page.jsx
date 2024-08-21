@@ -30,7 +30,6 @@ const RegisterJob = () => {
       setSelectedGugun("");
       setSelectedEupmyeondong("");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSido]);
 
   useEffect(() => {
@@ -38,7 +37,7 @@ const RegisterJob = () => {
       const eupmyeondongList = data
         .filter(item => item.시도명 === selectedSido && item.시군구명 === selectedGugun)
         .map(item => item.읍면동명)
-        .filter(Boolean); // 읍면동명이 비어있지 않은 항목만 필터링
+        .filter(Boolean);
       setEupmyeondongOptions(eupmyeondongList);
       setSelectedEupmyeondong("");
     }
@@ -46,13 +45,15 @@ const RegisterJob = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     const userData = {
       title: jobTitle,
       content: jobContent, 
       price: Number(jobPrice),
       category: jobCategory, 
-      address: `${selectedSido} ${selectedGugun} ${selectedEupmyeondong}`,
+      city: selectedSido,
+      district: selectedGugun,
+      dong: selectedEupmyeondong,
       photoUrl: jobImage 
     };
     
@@ -68,12 +69,19 @@ const RegisterJob = () => {
       if (err.response && err.response.status === 401) {
         const newToken = await refreshAccessToken(navigate);
         if (newToken) {
-          localStorage.setItem('accessToken', newToken); // 새 토큰 저장
-          handleSubmit(e); // 새로운 토큰으로 다시 시도
+          localStorage.setItem('accessToken', newToken);
+          handleSubmit(e);
         }
       } else {
         setError("잡일 등록에 실패했습니다.");
       }
+    }
+  };
+
+  const handlePriceChange = (e) => {
+    const value = e.target.value;
+    if (value === "" || (Number(value) <= 10000000 && Number(value) >= 0)) {
+      setJobPrice(value);
     }
   };
 
@@ -115,7 +123,7 @@ const RegisterJob = () => {
               type="number"
               id="jobPrice"
               value={jobPrice}
-              onChange={(e) => setJobPrice(e.target.value)}
+              onChange={handlePriceChange}
               required
             />
           </div>

@@ -94,7 +94,7 @@ const JobDetailPage = () => {
               <div className="job-details">
                 <div className="detail-row">
                   <span className="label">위치:</span>
-                  <span className="value">{job.address}</span>
+                  <span className="value">{`${job.city} ${job.district} ${job.dong}`}</span>
                 </div>
                 <div className="detail-row">
                   <span className="label">급여:</span>
