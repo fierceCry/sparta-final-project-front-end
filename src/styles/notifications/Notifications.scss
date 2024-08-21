@@ -1,0 +1,9 @@
+.notification {
+  background-color: pink;
+  transition: opacity 0.5s ease-out; /* 0.5초 동안 서서히 사라짐 */
+  opacity: 1;
+}
+
+.notification.fade-out {
+  opacity: 0;
+}
