@@ -27,6 +27,7 @@ const JobDetailPage = () => {
     try {
       await applyForJob(id, navigate);
       alert("지원이 완료되었습니다.");
+      navigate("/main");
     } catch (err) {
       setError(err.message);
     }

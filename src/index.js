@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import "./index.css";
-import SignupPage from "./pages/auth/signup-page";
+import {SignupPage} from "./pages/auth/signup-page";
 import LoginPage from "./pages/auth/signin-page";
 import MainPage from "./pages/main/main-page";
 import RegisterJob from "./pages/jobs/job-create-page";
