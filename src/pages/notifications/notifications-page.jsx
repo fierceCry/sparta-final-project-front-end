@@ -74,10 +74,6 @@ const AlarmList = () => {
       return `${days}일 전`;
     }
   };
-  
-  // 예시 사용
-  console.log(getRelativeTime("2024-08-21T04:36:52Z")); // 서버에서 받은 UTC 시간
-  
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentAlarms = alarms.slice(startIndex, startIndex + itemsPerPage);
