@@ -3,7 +3,7 @@ import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchJobs, fetchNotices } from "../../services/main";
 import "../../styles/main/main-page.scss";
-import { useSocket } from "../../contexts/SocketContext";
+// import { useSocket } from "../../contexts/SocketContext";
 
 const MainPageContent = () => {
   const navigate = useNavigate();
@@ -13,14 +13,13 @@ const MainPageContent = () => {
   const [noticePage, setNoticePage] = useState(1);
   const [jobPage, setJobPage] = useState(1);
   const [error, setError] = useState(null);
-  const [notifications, setNotifications] = useState([]);
   const [totalNoticePages, setTotalNoticePages] = useState(1);
   const [totalJobPages, setTotalJobPages] = useState(1);
 
   const noticesPerPage = 2;
   const jobsPerPage = 8;
 
-  const socket = useSocket();
+  // const socket = useSocket();
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -70,37 +69,6 @@ const MainPageContent = () => {
     loadNotices();
   }, [noticePage, navigate]);
 
-  useEffect(() => {
-    if (!socket) return;
-  
-    const handleNotification = (notificationData) => {
-      console.log(notificationData);
-      setNotifications((prev) => [...prev, notificationData]);
-      setTimeout(() => {
-        const notificationElement = document.querySelector(`.notification-${notificationData.id}`);
-        if (notificationElement) {
-          notificationElement.classList.add("fade-out");
-          setTimeout(() => {
-            setNotifications((prev) => prev.filter((n) => n.id !== notificationData.id));
-          }, 5000);
-        }
-      }, 5000);
-    };
-  
-    socket.on("notification", handleNotification);
-  
-    // 에러 핸들링 추가
-    socket.on("connect_error", (err) => {
-      console.error("WebSocket connection error:", err);
-    });
-  
-    return () => {
-      socket.off("notification", handleNotification);
-      socket.off("connect_error");
-    };
-  }, [socket]);
-  
-
   const handlePageChange = (newPage, type) => {
     if (type === "notice") {
       if (newPage < 1 || newPage > totalNoticePages) return;
@@ -116,6 +84,10 @@ const MainPageContent = () => {
       return text.slice(0, maxLength) + "...";
     }
     return text;
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 0 }).format(value);
   };
 
   return (
@@ -151,7 +123,7 @@ const MainPageContent = () => {
                   <Link to={`/job/${job.id}`} key={job.id} className="alarm-card">
                     <div className="card-content">
                       <h3>{job.title}</h3>
-                      <p>급여 {job.price}원</p>
+                      <p>급여 {formatCurrency(job.price)}원</p>
                     </div>
                   </Link>
                 ))
@@ -213,14 +185,6 @@ const MainPageContent = () => {
           </div>
         </div>
       </main>
-
-      <div className="notification-container">
-        {notifications.map((notification) => (
-          <div key={notification.id} className={`notification notification-${notification.id}`}>
-            <p>{notification.title}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

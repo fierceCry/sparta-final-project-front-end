@@ -32,6 +32,10 @@ const JobDetailPage = () => {
     }
   };
 
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 0 }).format(value);
+  };
+
   if (error) {
     return <p className="error-message">{error}</p>;
   }
@@ -93,11 +97,15 @@ const JobDetailPage = () => {
                 </div>
                 <div className="detail-row">
                   <span className="label">급여:</span>
-                  <span className="value">{job.price}원</span>
+                  <span className="value">{formatCurrency(job.price)}원</span>
                 </div>
                 <div className="detail-row">
                   <span className="label">업무:</span>
                   <span className="value">{job.content}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label">카테고리:</span>
+                  <span className="value">{job.category}</span>
                 </div>
               </div>
             </div>
