@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import "../../styles/notices/notice-create-page.scss"; // 스타일 경로 수정
-import { refreshAccessToken } from '../../services/auth.service'; // 오타 수정
+import "../../styles/notices/notice-create-page.scss";
+import { refreshAccessToken } from '../../services/auth.service';
 
 const RegisterNotice = () => {
   const navigate = useNavigate();
   const [noticeTitle, setNoticeTitle] = useState("");
   const [noticeContent, setNoticeContent] = useState(""); 
-  const [imageUrl, setImageUrl] = useState(""); // 이미지 URL 상태 초기화
+  const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState(null); 
 
   const handleSubmit = async (e) => {
@@ -18,7 +18,7 @@ const RegisterNotice = () => {
     const noticeData = {
       title: noticeTitle,
       description: noticeContent, 
-      imageUrl: imageUrl, // 이미지 URL 추가
+      imageUrl: imageUrl,
     };
     
     try {
@@ -29,16 +29,17 @@ const RegisterNotice = () => {
         },
       });
     
-      alert('공지사항 등록 성공했습니다.')
+      alert('공지사항 등록 성공했습니다.');
       navigate("/main");
     } catch (err) {
       if (err.response && err.response.status === 401) {
         const newToken = await refreshAccessToken(navigate);
         if (newToken) {
+          localStorage.setItem('accessToken', newToken); // 새 토큰 저장
           handleSubmit(e);
         }
-      } else if(err.response.data.message === '관리자 권한이 필요합니다.'){
-        alert('관리자 권한이 필요합니다.')
+      } else if(err.response && err.response.data.message === '관리자 권한이 필요합니다.') {
+        alert('관리자 권한이 필요합니다.');
       } else {
         setError("공지사항 등록에 실패했습니다.");
       }
@@ -87,7 +88,7 @@ const RegisterNotice = () => {
               type="text"
               id="imageUpload"
               value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)} // URL 입력 시 상태 업데이트
+              onChange={(e) => setImageUrl(e.target.value)}
               placeholder="이미지 URL을 입력하세요"
               required
             />

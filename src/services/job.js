@@ -32,7 +32,6 @@ export const fetchJobs = async (navigate) => {
 export const acceptJob = async (jobId, navigate) => {
   try {
     const token = localStorage.getItem('accessToken');
-
     await axios.patch(`${API_URL}/api/v1/job-matching/accept/${jobId}`, {}, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -49,7 +48,6 @@ export const acceptJob = async (jobId, navigate) => {
 export const rejectJob = async (jobId, navigate) => {
   try {
     const token = localStorage.getItem('accessToken');
-
     await axios.patch(`${API_URL}/api/v1/job-matching/reject/${jobId}`, {}, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -71,14 +69,10 @@ export const fetchJobDetail = async (id, navigate) => {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log(response)
     return response.data.job;
   } catch (err) {
     if (err.response && err.response.status === 401) {
-      const newToken = await refreshAccessToken(navigate);
-      if (newToken) {
-        return fetchJobDetail(id, navigate);
-      }
+      return handle401Error(navigate, fetchJobDetail, id, navigate);
     }
     throw new Error("잡 정보 가져오는 데 실패했습니다.");
   }
@@ -95,10 +89,7 @@ export const applyForJob = async (id, navigate) => {
     return true; // 지원 성공
   } catch (err) {
     if (err.response && err.response.status === 401) {
-      const newToken = await refreshAccessToken(navigate);
-      if (newToken) {
-        return applyForJob(id, navigate);
-      }
+      return handle401Error(navigate, applyForJob, id, navigate);
     }
     throw new Error("지원하는 데 실패했습니다.");
   }

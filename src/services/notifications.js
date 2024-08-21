@@ -3,56 +3,41 @@ import { refreshAccessToken } from './auth.service';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
+const getAuthHeaders = (token) => ({
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+
+const handle401Error = async (navigate, requestFunc, ...args) => {
+  const newToken = await refreshAccessToken(navigate);
+  if (newToken) {
+    return requestFunc(...args, newToken);
+  }
+  throw new Error("액세스 토큰을 갱신할 수 없습니다.");
+};
+
 export const fetchNotifications = async (token, navigate, page = 1, limit = 6) => {
   try {
     const response = await axios.get(`${API_URL}/api/v1/notifications`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-      params: {
-        page,
-        limit
-      }
+      ...getAuthHeaders(token),
+      params: { page, limit },
     });
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 401) {
-      const newToken = await refreshAccessToken(navigate);
-      if (newToken) {
-        const retryResponse = await axios.get(`${API_URL}/api/v1/notifications`, {
-          headers: {
-            Authorization: `Bearer ${newToken}`
-          },
-          params: {
-            page,
-            limit
-          }
-        });
-        return retryResponse.data;
-      }
+      return handle401Error(navigate, fetchNotifications, navigate, page, limit);
     }
     throw error;
   }
 };
 
-// 새로운 API 요청 추가
 export const deleteNotification = async (token, navigate, notificationId) => {
   try {
-    await axios.delete(`${API_URL}/api/v1/notifications/${notificationId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-    });
+    await axios.delete(`${API_URL}/api/v1/notifications/${notificationId}`, getAuthHeaders(token));
   } catch (error) {
     if (error.response && error.response.status === 401) {
-      const newToken = await refreshAccessToken(navigate);
-      if (newToken) {
-        await axios.delete(`${API_URL}/api/v1/notifications/${notificationId}`, {
-          headers: {
-            Authorization: `Bearer ${newToken}`
-          },
-        });
-      }
+      return handle401Error(navigate, deleteNotification, navigate, notificationId);
     }
     throw error;
   }
@@ -60,22 +45,10 @@ export const deleteNotification = async (token, navigate, notificationId) => {
 
 export const clearAllNotifications = async (token, navigate) => {
   try {
-    await axios.delete(`${API_URL}/api/v1/notifications`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-    });
+    await axios.delete(`${API_URL}/api/v1/notifications`, getAuthHeaders(token));
   } catch (error) {
     if (error.response && error.response.status === 401) {
-      const newToken = await refreshAccessToken(navigate);
-      if (newToken) {
-        await axios.delete(`${API_URL}/api/v1/notifications`, {
-          headers: {
-            Authorization: `Bearer ${newToken}`
-          },
-        });
-      }
-    } else if (error.response && error.response.status === 403) {
+      return handle401Error(navigate, clearAllNotifications, navigate);
     }
     throw error;
   }

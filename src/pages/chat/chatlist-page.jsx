@@ -27,7 +27,8 @@ const ChatListPage = () => {
         if (err.response && err.response.status === 401) {
           const newToken = await refreshAccessToken(navigate);
           if (newToken) {
-            fetchChatList();
+            localStorage.setItem('accessToken', newToken); // 새 토큰 저장
+            fetchChatList(); // 새로운 토큰으로 다시 시도
           }
         } else {
           setError("채팅 목록을 가져오는 데 실패했습니다.");
