@@ -56,19 +56,26 @@ const AlarmList = () => {
 
   const getRelativeTime = (dateString) => {
     const now = new Date();
+    
+    // 입력된 UTC 시간을 한국 시간으로 변환
     const past = new Date(dateString);
-    const diff = Math.floor((now - past) / 1000);
-
-    if (diff < 60) {
-      return `${diff}초 전`;
-    } else if (diff < 3600) {
-      return `${Math.floor(diff / 60)}분 전`;
-    } else if (diff < 86400) {
-      return `${Math.floor(diff / 3600)}시간 전`;
+    const pastKST = new Date(past.getTime() + (9 * 60 * 60 * 1000)); // 9시간을 밀리초로 변환하여 추가
+  
+    const diffInSeconds = Math.floor((now - pastKST) / 1000);
+  
+    if (diffInSeconds < 60) {
+      return `${diffInSeconds}초 전`;
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes}분 전`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours}시간 전`;
     } else {
-      return `${Math.floor(diff / 86400)}일 전`;
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days}일 전`;
     }
-  };
+  };  
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentAlarms = alarms.slice(startIndex, startIndex + itemsPerPage);
