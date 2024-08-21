@@ -56,13 +56,11 @@ const AlarmList = () => {
 
   const getRelativeTime = (dateString) => {
     const now = new Date();
-    console.log(now)
-    // 입력된 UTC 시간을 한국 시간으로 변환
-    const past = new Date(dateString);
-    const pastKST = new Date(past.getTime() + (9 * 60 * 60 * 1000)); // 9시간을 밀리초로 변환하여 추가
-  
-    const diffInSeconds = Math.floor((now - pastKST) / 1000);
-  
+    
+    // 서버에서 받은 UTC 시간을 로컬 시간대로 변환
+    const past = new Date(dateString); // UTC로 해석
+    const diffInSeconds = Math.floor((now - past) / 1000);
+    
     if (diffInSeconds < 60) {
       return `${diffInSeconds}초 전`;
     } else if (diffInSeconds < 3600) {
@@ -76,6 +74,10 @@ const AlarmList = () => {
       return `${days}일 전`;
     }
   };
+  
+  // 예시 사용
+  console.log(getRelativeTime("2024-08-21T04:36:52Z")); // 서버에서 받은 UTC 시간
+  
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentAlarms = alarms.slice(startIndex, startIndex + itemsPerPage);
