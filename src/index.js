@@ -13,12 +13,13 @@ import NoticePage from "./pages/notices/notice-detail-page";
 import ReportPage from "./pages/reports/report-page";
 import ChatListPage from "./pages/chat/chatlist-page";
 import Chat from "./pages/chat/chat-page";
-import Notifications from "./pages/notifications/notifications-page";
+import AlarmList from "./pages/notifications/notifications-page";
 import JobMatching from "./pages/jobs/job-matching";
 import JobApplications from "./pages/jobs/job-list";
 import RegisterNotice from "./pages/notices/notice-create-page";
 import { SocketProvider } from "./contexts/SocketContext"; // SocketProvider 임포트
 import CallbackPage from "./pages/auth/callback-page"; // 콜백 페이지 임포트
+import Notifications from './pages/notifications/Notifications'
 
 const AppRoutes = () => {
   return (
@@ -34,7 +35,7 @@ const AppRoutes = () => {
       <Route path="/report" element={<ReportPage />} />
       <Route path="/chatlist" element={<ChatListPage />} />
       <Route path="/chat/:id" element={<Chat />} />
-      <Route path="/notifications" element={<Notifications />} />
+      <Route path="/notifications" element={<AlarmList />} />
       <Route path="/job-matching" element={<JobMatching />} />
       <Route path="/user-applications" element={<JobApplications />} />
       <Route path="/create-notice" element={<RegisterNotice />} />
@@ -43,7 +44,6 @@ const AppRoutes = () => {
   );
 };
 
-
 const App = () => {
   const location = useLocation();
   const isAuthPage =
@@ -51,10 +51,9 @@ const App = () => {
     location.pathname === "/sign-in" ||
     location.pathname === "/sign-up";
 
-  return isAuthPage ? (
-    <AppRoutes />
-  ) : (
+  return (
     <SocketProvider>
+      {!isAuthPage && <Notifications />} {/* 모든 페이지에서 알림 표시 */}
       <AppRoutes />
     </SocketProvider>
   );
@@ -64,7 +63,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <BrowserRouter>
     <App />
-  </BrowserRouter>,
+  </BrowserRouter>
 );
 
 reportWebVitals();
