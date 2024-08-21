@@ -68,7 +68,8 @@ const RegisterJob = () => {
       if (err.response && err.response.status === 401) {
         const newToken = await refreshAccessToken(navigate);
         if (newToken) {
-          handleSubmit(e);
+          localStorage.setItem('accessToken', newToken); // 새 토큰 저장
+          handleSubmit(e); // 새로운 토큰으로 다시 시도
         }
       } else {
         setError("잡일 등록에 실패했습니다.");

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, Bell, Send, User, ChevronRight } from "lucide-react"; // ChevronRight 추가
+import { ChevronLeft, Bell, Send, User, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { refreshAccessToken } from "../../services/auth.service";
@@ -10,34 +10,30 @@ const JobApplications = () => {
   const [applications, setApplications] = useState([]);
   const [error, setError] = useState(null);
   
-  // 페이지네이션 상태 추가
   const [currentPage, setCurrentPage] = useState(1);
-  const applicationsPerPage = 6; // 페이지당 보여줄 지원 목록 수
+  const applicationsPerPage = 6;
 
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-
-    if (!token) {
-      navigate("/sign-in");
-      return;
-    }
-
     const fetchApplications = async () => {
       try {
         const token = localStorage.getItem("accessToken");
+        if (!token) {
+          navigate("/sign-in");
+          return;
+        }
 
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/apply`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response)
         setApplications(response.data.Matching || []); 
       } catch (err) {
         if (err.response && err.response.status === 401) {
           const newToken = await refreshAccessToken(navigate);
           if (newToken) {
-            fetchApplications();
+            localStorage.setItem('accessToken', newToken); // 새 토큰 저장
+            fetchApplications(); // 새로운 토큰으로 다시 시도
           }
         } else {
           setError("지원 목록을 가져오는 데 실패했습니다.");
@@ -49,20 +45,19 @@ const JobApplications = () => {
   }, [navigate]);
 
   const handleWithdraw = async (applicationId) => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      navigate("/sign-in");
-      return;
-    }
-
     try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        navigate("/sign-in");
+        return;
+      }
+
       await axios.delete(`${process.env.REACT_APP_API_URL}/api/v1/job-matching/${applicationId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       
-      // 삭제 후, 목록에서 해당 신청 제거
       setApplications((prevApplications) =>
         prevApplications.filter((application) => application.id !== applicationId)
       );
@@ -73,15 +68,13 @@ const JobApplications = () => {
   };
 
   const handleViewDetails = (jobId) => {
-    navigate(`/job/${jobId}`); // 잡일 상세 조회 페이지로 이동
+    navigate(`/job/${jobId}`);
   };
 
-  // 현재 페이지에 맞는 지원 목록을 가져오는 함수
   const indexOfLastApplication = currentPage * applicationsPerPage;
   const indexOfFirstApplication = indexOfLastApplication - applicationsPerPage;
   const currentApplications = applications.slice(indexOfFirstApplication, indexOfLastApplication);
 
-  // 페이지 변경 핸들러
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
@@ -122,26 +115,20 @@ const JobApplications = () => {
                 const isExpired = application.matchedYn;
                 const isMatched = application.rejectedYn;
 
-                // 클래스 이름 결정
-                let itemClass = '';
-                if (isExpired) {
-                  itemClass = 'matched'; // 초록색
-                } else if (isMatched) {
-                  itemClass = 'not-matched'; // 빨간색
-                }
+                const itemClass = isExpired ? 'matched' : isMatched ? 'not-matched' : '';
 
                 return (
                   <div 
                     className={`job-item ${itemClass}`} 
                     key={application.id}
-                    onClick={() => handleViewDetails(application.jobId)} // 잡일 상세 조회로 이동
+                    onClick={() => handleViewDetails(application.jobId)}
                   >
                     <span>
                       잡일: {application.job.title}
                     </span>
                     <div className="status-icons">
                       <button onClick={(e) => { 
-                        e.stopPropagation(); // 클릭 이벤트 전파 방지
+                        e.stopPropagation();
                         handleWithdraw(application.id); 
                       }}>
                         삭제
@@ -155,7 +142,6 @@ const JobApplications = () => {
             )}
           </div>
 
-          {/* 페이지네이션 - 화살표 버튼 */}
           {applications.length > applicationsPerPage && (
             <div className="pagination">
               <button onClick={handlePrevPage} disabled={currentPage === 1}>
