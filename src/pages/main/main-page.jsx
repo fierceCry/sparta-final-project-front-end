@@ -3,7 +3,6 @@ import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchJobs, fetchNotices } from "../../services/main";
 import "../../styles/main/main-page.scss";
-// import { useSocket } from "../../contexts/SocketContext";
 
 const MainPageContent = () => {
   const navigate = useNavigate();
@@ -15,11 +14,10 @@ const MainPageContent = () => {
   const [error, setError] = useState(null);
   const [totalNoticePages, setTotalNoticePages] = useState(1);
   const [totalJobPages, setTotalJobPages] = useState(1);
+  const [role, setRole] = useState("");
 
   const noticesPerPage = 2;
   const jobsPerPage = 8;
-
-  // const socket = useSocket();
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -29,13 +27,18 @@ const MainPageContent = () => {
       return;
     }
 
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setRole(storedRole);
+    }
+
     const loadJobs = async () => {
       try {
         const allJobs = await fetchJobs(token, navigate);
         setJobs(allJobs);
         setTotalJobPages(Math.ceil(allJobs.length / jobsPerPage));
       } catch (err) {
-        setError("잡일을 불러오는 중 오류가 발생했습니다."); // 사용자에게 친숙한 메시지
+        setError("잡일을 불러오는 중 오류가 발생했습니다.");
       }
     };
 
@@ -62,7 +65,7 @@ const MainPageContent = () => {
         setNotices(data);
         setTotalNoticePages(meta.totalPages);
       } catch (err) {
-        setError("공지사항을 불러오는 중 오류가 발생했습니다."); // 사용자에게 친숙한 메시지
+        setError("공지사항을 불러오는 중 오류가 발생했습니다.");
       }
     };
 
@@ -105,7 +108,6 @@ const MainPageContent = () => {
 
       <main>
         <div className="content-container">
-          {/* 에러 메시지 조건부 렌더링 */}
           {error && <p className="error-message">{error}</p>}
           <div className="job-list">
             <div className="job-list-header">
@@ -149,9 +151,11 @@ const MainPageContent = () => {
           <div className="notice-board">
             <div className="notice-board-header">
               <h2>공지사항</h2>
-              <Link to="/create-notice" className="create-notice-button">
-                공지사항 생성
-              </Link>
+              {role === "ADMIN" && (
+                <Link to="/create-notice" className="create-notice-button">
+                  공지사항 생성
+                </Link>
+              )}
             </div>
             <div className="notices-container">
               {notices.length > 0 ? (

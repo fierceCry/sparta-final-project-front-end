@@ -8,11 +8,10 @@ export const signin = async (email, password) => {
       email,
       password,
     });
-    console.log(response)
-    const { accessToken, refreshToken } = response.data;
+    const { accessToken, refreshToken, role} = response.data;
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
-
+    localStorage.setItem("role", role);
     return response.data; // 반환값을 추가하여 처리할 수 있게 함
   } catch (error) {
     console.log(error)
