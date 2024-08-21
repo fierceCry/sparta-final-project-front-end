@@ -1,8 +1,7 @@
-// src/contexts/SocketContext.js
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { useNavigate } from 'react-router-dom'; // react-router-dom v6 사용 시
-import { refreshAccessToken } from '../services/auth.service'; // auth.js에서 함수 가져오기
+import { useNavigate, useLocation } from 'react-router-dom';
+import { refreshAccessToken } from '../services/auth.service';
 
 const SocketContext = createContext();
 
@@ -10,15 +9,24 @@ export const useSocket = () => useContext(SocketContext);
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
-  const navigate = useNavigate(); // navigate hook 사용
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const connectSocket = async () => {
+      // 로그인 및 회원가입 페이지에서는 소켓 연결을 시도하지 않음
+      if (location.pathname === '/sign-in' || location.pathname === '/sign-up') {
+        return;
+      }
+
       let token = localStorage.getItem("accessToken");
 
       if (!token) {
         token = await refreshAccessToken(navigate);
-        if (!token) return;
+        if (!token) {
+          navigate('/sign-in');
+          return;
+        }
       }
 
       const newSocket = io(process.env.REACT_APP_API_URL, {
@@ -35,6 +43,8 @@ export const SocketProvider = ({ children }) => {
           if (token) {
             newSocket.auth.token = `Bearer ${token}`;
             newSocket.connect();
+          } else {
+            navigate('/sign-in');
           }
         }
       });
@@ -54,7 +64,7 @@ export const SocketProvider = ({ children }) => {
     };
 
     connectSocket();
-  }, [navigate]);
+  }, [navigate, location]);
 
   return (
     <SocketContext.Provider value={socket}>

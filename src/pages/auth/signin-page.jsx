@@ -1,19 +1,16 @@
+// LoginPage.js
 import React, { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-// import btnKakao from "../../data/btn_kakao.svg";
-// import btnNaver from "../../data/btn_naver.svg";
 import btnGoogle from "../../data/btn_google.svg";
 import {
   signin,
   validateEmail,
   validatePassword,
-  // handleKakaoLogin,
-  // handleNaverLogin,
   handleGoogleLogin,
 } from "../../services/sign-in-page";
 import "../../styles/auth/signin-page.scss";
-import axios from "axios"; // axios를 사용하여 API 호출
+import axios from "axios";
 
 const Modal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState("");
@@ -50,7 +47,7 @@ const Modal = ({ isOpen, onClose }) => {
       setError("");
       onClose();
     } catch (err) {
-      if(err.response.data.message === '가입되지 않은 계정입니다.'){
+      if (err.response.data.message === "가입되지 않은 계정입니다.") {
         setError("가입되지 않은 계정입니다.");
       }
       setSuccess("");
@@ -58,7 +55,6 @@ const Modal = ({ isOpen, onClose }) => {
   };
 
   const handleClose = () => {
-    // 상태 초기화
     setEmail("");
     setName("");
     setNewPassword("");
@@ -102,7 +98,7 @@ const Modal = ({ isOpen, onClose }) => {
             className="modal-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            onKeyDown={handleKeyDown} // 엔터키 이벤트 추가
+            onKeyDown={handleKeyDown}
           />
           <button className="modal-send-button" onClick={handleSendTempPassword}>
             임시 비밀번호 전송
@@ -122,7 +118,7 @@ const Modal = ({ isOpen, onClose }) => {
                 className="modal-input"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                onKeyDown={handleKeyDown} // 엔터키 이벤트 추가
+                onKeyDown={handleKeyDown}
               />
             </div>
             <div className="modal-input-group">
@@ -136,7 +132,7 @@ const Modal = ({ isOpen, onClose }) => {
                 className="modal-input"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                onKeyDown={handleKeyDown} // 엔터키 이벤트 추가
+                onKeyDown={handleKeyDown}
               />
             </div>
 
@@ -161,9 +157,10 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 추가
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleClickSignUp = () => {
+    setError(""); // 상태 초기화
     navigate("/sign-up");
   };
 
@@ -250,9 +247,6 @@ const LoginPage = () => {
             {error && <p className="login-form__error">{error}</p>}
 
             <div className="login-form__help-buttons">
-              {/* <button type="button" className="login-form__help-button">
-                아이디 찾기
-              </button> */}
               <button
                 type="button"
                 className="login-form__help-button"
@@ -263,20 +257,6 @@ const LoginPage = () => {
             </div>
 
             <div className="login-form__social-login">
-              {/* <button
-                type="button"
-                onClick={handleKakaoLogin}
-                className="login-form__social-button"
-              >
-                <img src={btnKakao} alt="카카오 로그인 버튼" />
-              </button>
-              <button
-                type="button"
-                onClick={handleNaverLogin}
-                className="login-form__social-button"
-              >
-                <img src={btnNaver} alt="네이버 로그인 버튼" />
-              </button> */}
               <button
                 type="button"
                 onClick={handleGoogleLogin}
@@ -296,8 +276,6 @@ const LoginPage = () => {
           </button>
         </div>
       </div>
-
-      {/* 모달 추가 */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );

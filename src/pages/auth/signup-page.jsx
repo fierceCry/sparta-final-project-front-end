@@ -18,7 +18,6 @@ import { useNavigate } from "react-router-dom";
 
 const SignupPage = () => {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -29,8 +28,10 @@ const SignupPage = () => {
   const [timer, setTimer] = useState(300);
 
   useEffect(() => {
-    let interval = startTimer(isModalOpen, timer, setTimer, setIsModalOpen);
-    return () => clearInterval(interval);
+    if (isModalOpen) {
+      const interval = startTimer(isModalOpen, timer, setTimer, setIsModalOpen);
+      return () => clearInterval(interval);
+    }
   }, [isModalOpen, timer]);
 
   const handleVerificationCodeClick = async () => {
@@ -219,4 +220,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export {SignupPage};
