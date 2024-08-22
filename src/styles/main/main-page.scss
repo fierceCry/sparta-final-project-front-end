@@ -72,7 +72,7 @@ $shadow-color: rgba(0, 0, 0, 0.1);
             font-weight: 600;
             margin-right: auto; // 잡일 목록 텍스트와 버튼 간격을 유지하기 위해 추가
           }
-
+          .job-list-button,
           .register-button,
           .register-list-button {
             display: flex;
@@ -85,6 +85,9 @@ $shadow-color: rgba(0, 0, 0, 0.1);
             font-weight: 600;
             transition: background-color 0.2s ease-in-out;
             margin-left: 0.5rem; // 버튼 간의 간격을 조정
+            
+            // 테두리를 없애기 위해 추가
+            border: none;
 
             &:hover {
               background-color: darken($primary-color, 10%);

@@ -42,3 +42,29 @@ export const fetchNotices = async (token, navigate, page, limit) => {
     // throw new Error("공지사항 목록을 가져오는 데 실패했습니다.");
   }
 };
+
+export const submitRegion = async (token, selectedRegion, navigate) => {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/v1/jobs/localJobsList`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      params: {
+        city: selectedRegion.city,
+        district: selectedRegion.district,
+        dong: selectedRegion.dong
+      }
+    });
+    return response.data; // 서버로부터 받은 데이터를 반환
+  } catch (err) {
+    console.log(err);
+    if (err.response && err.response.status === 401) {
+      const newToken = await refreshAccessToken(navigate);
+      if (newToken) {
+        return submitRegion(newToken, selectedRegion, navigate);
+      }
+    }
+    throw new Error("지역 설정을 저장하는 데 실패했습니다.");
+  }
+};
+

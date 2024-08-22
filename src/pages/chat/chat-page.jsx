@@ -37,7 +37,7 @@ const Chat = () => {
 
     socket.on("chatUpdated", (updatedChat) => {
       setChatMessages((prevMessages) =>
-        prevMessages.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat))
+        prevMessages.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat)),
       );
     });
 
@@ -68,7 +68,7 @@ const Chat = () => {
         chatRoomId: parseInt(id),
         senderId: socket.id,
         showDeleteButton: true,
-        id: tempId,
+        id: tempId, // 임시 ID
       };
 
       setIsSending(true);
@@ -81,16 +81,16 @@ const Chat = () => {
       socket.on("chatSent", (serverChatMessage) => {
         setChatMessages((prevMessages) =>
           prevMessages.map((msg) =>
-            msg.id === tempId ? { ...msg, id: serverChatMessage.id } : msg
-          )
+            msg.id === tempId ? { ...msg, id: serverChatMessage.id } : msg,
+          ),
         );
       });
 
       setTimeout(() => {
         setChatMessages((prevMessages) =>
           prevMessages.map((msg) =>
-            msg.id === tempId ? { ...msg, showDeleteButton: false } : msg
-          )
+            msg.id === tempId ? { ...msg, showDeleteButton: false } : msg,
+          ),
         );
       }, 180000);
 
@@ -148,7 +148,7 @@ const Chat = () => {
         <div className="chat-container" ref={chatContainerRef}>
           {chatMessages.map((chat, index) => (
             <div
-              key={chat.id || `temp-${index}`}
+              key={chat.id || `temp-${index}`} // 고유한 key 보장
               className={`chat-message ${chat.senderId === receiverId ? "received" : "sent"}`}
             >
               <div className="message-content">
