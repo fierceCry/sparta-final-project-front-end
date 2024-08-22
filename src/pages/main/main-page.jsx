@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchJobs, fetchNotices } from "../../services/main";
@@ -21,6 +21,21 @@ const MainPageContent = () => {
   const noticesPerPage = 2;
   const jobsPerPage = 8;
 
+  const loadJobs = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        navigate("/sign-in");
+        return;
+      }
+      const allJobs = await fetchJobs(token, navigate);
+      setJobs(allJobs);
+      setTotalJobPages(Math.ceil(allJobs.length / jobsPerPage));
+    } catch (err) {
+      setError("잡일을 불러오는 중 오류가 발생했습니다.");
+    }
+  }, [navigate]);
+
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
 
@@ -34,18 +49,8 @@ const MainPageContent = () => {
       setRole(storedRole);
     }
 
-    const loadJobs = async () => {
-      try {
-        const allJobs = await fetchJobs(token, navigate);
-        setJobs(allJobs);
-        setTotalJobPages(Math.ceil(allJobs.length / jobsPerPage));
-      } catch (err) {
-        setError("잡일을 불러오는 중 오류가 발생했습니다.");
-      }
-    };
-
     loadJobs();
-  }, [navigate]);
+  }, [navigate, loadJobs]);
 
   useEffect(() => {
     const startIndex = (jobPage - 1) * jobsPerPage;
@@ -101,6 +106,11 @@ const MainPageContent = () => {
     return new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 0 }).format(value);
   };
 
+  const handleAllRegionsClick = () => {
+    setJobPage(1); // 페이지를 처음으로 초기화
+    loadJobs(); // 전체 잡일 목록을 다시 불러오기
+  };
+
   return (
     <div className="main-page">
       <header>
@@ -120,6 +130,9 @@ const MainPageContent = () => {
           <div className="job-list">
             <div className="job-list-header">
               <h2>잡일 목록</h2>
+              <button onClick={handleAllRegionsClick} className="job-list-button">
+                전체 지역
+              </button>
               <button onClick={() => setModalOpen(true)} className="job-list-button">
                 원하는 지역 설정
               </button>

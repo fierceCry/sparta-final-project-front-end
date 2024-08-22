@@ -85,7 +85,9 @@ $shadow-color: rgba(0, 0, 0, 0.1);
             font-weight: 600;
             transition: background-color 0.2s ease-in-out;
             margin-left: 0.5rem; // 버튼 간의 간격을 조정
-            
+            cursor: pointer; // 커서 스타일 추가
+            font-family: 'Arial', sans-serif; // 폰트 통일
+
             // 테두리를 없애기 위해 추가
             border: none;
 
@@ -161,6 +163,8 @@ $shadow-color: rgba(0, 0, 0, 0.1);
             text-decoration: none;
             font-weight: 600;
             transition: background-color 0.2s ease-in-out;
+            cursor: pointer; // 커서 스타일 추가
+            font-family: 'Arial', sans-serif; // 폰트 통일
 
             &:hover {
               background-color: darken($primary-color, 10%);
