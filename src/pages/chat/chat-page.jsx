@@ -100,15 +100,15 @@ const Chat = () => {
     }
   };
 
-  const handleDeleteMessage = (chatId) => {
-    if (!socket) return;
+  // const handleDeleteMessage = (chatId) => {
+  //   if (!socket) return;
 
-    const chatRoomId = id; // 현재 채팅방 ID
-    socket.emit("deleteChat", { chatRoomId, chatId });
+  //   const chatRoomId = id; // 현재 채팅방 ID
+  //   socket.emit("deleteChat", { chatRoomId, chatId });
 
-    // 클라이언트 측에서 삭제된 메시지를 즉시 제거
-    setChatMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== chatId));
-  };
+  //   // 클라이언트 측에서 삭제된 메시지를 즉시 제거
+  //   setChatMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== chatId));
+  // };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -156,7 +156,7 @@ const Chat = () => {
               </div>
               {chat.senderId !== receiverId && chat.showDeleteButton && (
                 <div className="message-actions">
-                  <button onClick={() => handleDeleteMessage(chat.id)}>삭제</button>
+                  {/* <button onClick={() => handleDeleteMessage(chat.id)}>삭제</button> */}
                 </div>
               )}
             </div>

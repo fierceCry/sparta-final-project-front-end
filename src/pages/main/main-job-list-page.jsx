@@ -35,6 +35,10 @@ const Modal = ({ isOpen, onClose, onSubmit }) => {
     try {
       const response = await submitRegion(token, selectedRegion, navigate);
       onSubmit(response.localJob); // 부모 컴포넌트로 잡일 목록 전달
+      // 선택한 내용을 초기화
+      setSelectedCity("");
+      setSelectedDistrict("");
+      setSelectedDong("");
       onClose();
     } catch (error) {
       console.error('설정 완료 중 오류 발생:', error);
