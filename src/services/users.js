@@ -56,6 +56,9 @@ export const logoutUser = async (navigate) => {
     localStorage.removeItem('refreshToken');
     navigate("/sign-in");
   } catch (err) {
+    if (err.response && err.response.status === 401) {
+      return handle401Error(navigate, logoutUser, navigate);
+    }
     throw new Error("로그아웃에 실패했습니다.");
   }
 };
@@ -67,6 +70,9 @@ export const quitUser = async (navigate) => {
     localStorage.removeItem('refreshToken');
     navigate("/sign-in");
   } catch (err) {
+    if (err.response && err.response.status === 401) {
+      return handle401Error(navigate, quitUser, navigate);
+    }
     throw new Error("회원탈퇴에 실패했습니다.");
   }
 };

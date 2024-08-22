@@ -55,9 +55,6 @@ export const submitRegion = async (token, selectedRegion, navigate) => {
         dong: selectedRegion.dong
       }
     });
-
-    console.log('서버 응답:', response.data);
-
     return response.data; // 서버로부터 받은 데이터를 반환
   } catch (err) {
     console.log(err);

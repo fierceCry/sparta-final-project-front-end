@@ -85,7 +85,6 @@ const MainPageContent = () => {
   };
 
   const handleRegionSubmit = (filteredJobs) => {
-    console.log('Filtered Jobs in MainPageContent:', filteredJobs);
     setJobs(filteredJobs);
     setJobPage(1);
     setTotalJobPages(Math.ceil(filteredJobs.length / jobsPerPage));

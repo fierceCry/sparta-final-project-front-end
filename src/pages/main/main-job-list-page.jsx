@@ -34,7 +34,6 @@ const Modal = ({ isOpen, onClose, onSubmit }) => {
     const selectedRegion = { city: selectedCity, district: selectedDistrict, dong: selectedDong };
     try {
       const response = await submitRegion(token, selectedRegion, navigate);
-      console.log('Filtered Jobs:', response.localJob);
       onSubmit(response.localJob); // 부모 컴포넌트로 잡일 목록 전달
       onClose();
     } catch (error) {

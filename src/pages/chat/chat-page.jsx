@@ -32,13 +32,12 @@ const Chat = () => {
     });
 
     socket.on("chatLog", (logs) => {
-      console.log(logs)
       setChatMessages(logs);
     });
 
     socket.on("chatUpdated", (updatedChat) => {
       setChatMessages((prevMessages) =>
-        prevMessages.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat))
+        prevMessages.map((chat) => (chat.id === updatedChat.id ? updatedChat : chat)),
       );
     });
 
@@ -58,7 +57,6 @@ const Chat = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-    // console.log(chatMessages)
   }, [chatMessages]);
 
   const handleSendMessage = () => {
@@ -83,16 +81,16 @@ const Chat = () => {
       socket.on("chatSent", (serverChatMessage) => {
         setChatMessages((prevMessages) =>
           prevMessages.map((msg) =>
-            msg.id === tempId ? { ...msg, id: serverChatMessage.id } : msg
-          )
+            msg.id === tempId ? { ...msg, id: serverChatMessage.id } : msg,
+          ),
         );
       });
 
       setTimeout(() => {
         setChatMessages((prevMessages) =>
           prevMessages.map((msg) =>
-            msg.id === tempId ? { ...msg, showDeleteButton: false } : msg
-          )
+            msg.id === tempId ? { ...msg, showDeleteButton: false } : msg,
+          ),
         );
       }, 180000);
 
@@ -103,7 +101,6 @@ const Chat = () => {
   };
 
   const handleDeleteMessage = (chatId) => {
-    console.log(chatId)
     if (!socket) return;
 
     const chatRoomId = id; // 현재 채팅방 ID
@@ -149,9 +146,9 @@ const Chat = () => {
 
       <main className="chat-main">
         <div className="chat-container" ref={chatContainerRef}>
-          {chatMessages.map((chat) => (
+          {chatMessages.map((chat, index) => (
             <div
-              key={chat.id}
+              key={chat.id || `temp-${index}`} // 고유한 key 보장
               className={`chat-message ${chat.senderId === receiverId ? "received" : "sent"}`}
             >
               <div className="message-content">
