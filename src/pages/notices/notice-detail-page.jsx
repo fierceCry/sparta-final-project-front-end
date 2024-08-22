@@ -55,6 +55,19 @@ const Modal = ({ isOpen, onClose, noticeData, onSubmit }) => {
   );
 };
 
+const createLinkifiedContent = (text) => {
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
+  return text.split(urlPattern).map((part, index) => 
+    urlPattern.test(part) ? <a key={index} href={part} target="_blank" rel="noopener noreferrer">{part}</a> : part
+  );
+};
+
+const NoticeContent = ({ content }) => (
+  <div className="notice-content">
+    {createLinkifiedContent(content)}
+  </div>
+);
+
 const NoticePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -143,7 +156,7 @@ const NoticePage = () => {
         <article className="notice-card">
           <h2>{notice.title}</h2>
           <p className="notice-date">{new Date(notice.date).toLocaleDateString()}</p>
-          <div className="notice-content">{notice.content}</div>
+          <NoticeContent content={notice.content} />
           {notice.imageUrl && <img src={notice.imageUrl} alt={notice.title} className="notice-image" />}
           <div className="action-buttons">
             <button onClick={handleEdit} className="edit-button">수정</button>
