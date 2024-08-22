@@ -19,8 +19,10 @@ const JobMatching = () => {
       setLoading(true);
       try {
         const jobList = await fetchJobs(navigate);
+        console.log(jobList);
         // 값이 없거나 예상과 다른 경우 처리
         const formattedJobs = jobList.map((job) => {
+          console.log(job.id);
           const createdAt = new Date(job.createdAt);
           const date = createdAt.toLocaleDateString();
           const time = createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });

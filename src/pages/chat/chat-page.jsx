@@ -32,6 +32,7 @@ const Chat = () => {
     });
 
     socket.on("chatLog", (logs) => {
+      console.log(logs)
       setChatMessages(logs);
     });
 
@@ -57,6 +58,7 @@ const Chat = () => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
+    // console.log(chatMessages)
   }, [chatMessages]);
 
   const handleSendMessage = () => {
@@ -68,7 +70,7 @@ const Chat = () => {
         chatRoomId: parseInt(id),
         senderId: socket.id,
         showDeleteButton: true,
-        id: tempId,
+        id: tempId, // 임시 ID
       };
 
       setIsSending(true);
@@ -101,6 +103,7 @@ const Chat = () => {
   };
 
   const handleDeleteMessage = (chatId) => {
+    console.log(chatId)
     if (!socket) return;
 
     const chatRoomId = id; // 현재 채팅방 ID
@@ -146,9 +149,9 @@ const Chat = () => {
 
       <main className="chat-main">
         <div className="chat-container" ref={chatContainerRef}>
-          {chatMessages.map((chat, index) => (
+          {chatMessages.map((chat) => (
             <div
-              key={chat.id || `temp-${index}`}
+              key={chat.id}
               className={`chat-message ${chat.senderId === receiverId ? "received" : "sent"}`}
             >
               <div className="message-content">

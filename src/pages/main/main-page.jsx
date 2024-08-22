@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Bell, Send, User, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchJobs, fetchNotices } from "../../services/main";
+import Modal from "./main-job-list-page";
 import "../../styles/main/main-page.scss";
 
 const MainPageContent = () => {
@@ -15,6 +16,7 @@ const MainPageContent = () => {
   const [totalNoticePages, setTotalNoticePages] = useState(1);
   const [totalJobPages, setTotalJobPages] = useState(1);
   const [role, setRole] = useState("");
+  const [isModalOpen, setModalOpen] = useState(false);
 
   const noticesPerPage = 2;
   const jobsPerPage = 8;
@@ -82,6 +84,13 @@ const MainPageContent = () => {
     }
   };
 
+  const handleRegionSubmit = (filteredJobs) => {
+    console.log('Filtered Jobs in MainPageContent:', filteredJobs);
+    setJobs(filteredJobs);
+    setJobPage(1);
+    setTotalJobPages(Math.ceil(filteredJobs.length / jobsPerPage));
+  };
+
   const truncateText = (text, maxLength) => {
     if (text.length > maxLength) {
       return text.slice(0, maxLength) + "...";
@@ -112,6 +121,9 @@ const MainPageContent = () => {
           <div className="job-list">
             <div className="job-list-header">
               <h2>잡일 목록</h2>
+              <button onClick={() => setModalOpen(true)} className="job-list-button">
+                원하는 지역 설정
+              </button>
               <Link to="/job-matching" className="register-list-button">
                 내가 받은 지원 목록
               </Link>
@@ -189,6 +201,12 @@ const MainPageContent = () => {
           </div>
         </div>
       </main>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleRegionSubmit}
+      />
     </div>
   );
 };
