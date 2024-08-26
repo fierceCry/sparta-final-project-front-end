@@ -68,7 +68,6 @@ export const quitUser = async (navigate) => {
     await axios.patch(`${API_URL}/api/v1/users/quit`, {}, getAuthHeaders());
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    alert('회원탈퇴 하였습니다.')
     navigate("/sign-in");
   } catch (err) {
     if (err.response && err.response.status === 401) {
