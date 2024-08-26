@@ -51,13 +51,17 @@ const UserInfoPage = () => {
   };
 
   const handleQuit = async () => {
-    try {
-      await quitUser(navigate);
-    } catch (err) {
-      setError(err.message);
+    const confirmQuit = window.confirm("정말로 회원탈퇴를 하시겠습니까?");
+    if (confirmQuit) {
+      try {
+        await quitUser(navigate);
+        alert("회원탈퇴가 완료되었습니다.");
+      } catch (err) {
+        setError(err.message);
+      }
     }
   };
-
+  
   if (error) {
     return <div>{error}</div>;
   }
